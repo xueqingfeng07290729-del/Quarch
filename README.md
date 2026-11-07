@@ -13,6 +13,7 @@
 5. [DuckDB TPC-H 逐查询计时与 SF10／20／30 选择](docs/usage/tpch-timing.md)
 6. [DuckDB TPC-H 逐查询耗时与能耗](docs/usage/tpch-energy.md)
 7. [Quarch watch：终端逐点查看功率](docs/usage/live-watch.md)
+8. [测量精度、误差限制与官方资料](#测量精度与误差)
 
 ## 目录结构
 
@@ -155,6 +156,33 @@ python3 tools/benchmark/tpch_timing.py --database ~/duckdb/tpch_sf30.duckdb
 该命令默认每条查询预热三次，然后测三组，每组连续重复约五秒；组间等待五秒且停止采集。
 结果包含整组实测值和折算单次平均值，能耗口径为 L2 整机耗电，含基础功耗与测量开销。
 细节见 [TPC-H 能耗指南](docs/usage/tpch-energy.md)。
+
+## 测量精度与误差
+
+以下是厂商针对 **QTL2843** 型号公布的指标，资料于 **2026-11-07** 核对。
+它们是型号规格；本仓库此前的通信和采集验证，不代表已用标准仪器校验本机的实际误差。
+
+[官方 AC Power Analysis Modules 数据表第 6 页](https://quarch.com/wp-content/uploads/2022/12/AC-Power-Analysis-Modules.pdf#page=6)
+的 `Measurement Information` 表中，QTL2843 一列列出：
+
+| 项目 | 官方数值 / 本次查阅结果 | 说明 |
+| --- | --- | --- |
+| 电压校准精度 | **±(1% + 250mV)** | 既有百分比项，也有固定电压项，不能只保留 1% |
+| 电流校准精度 | 原表写作 **±(1% 20mA)** | 原样保留；两项之间的运算符不明确，完整公式、百分比基准及适用条件需向厂商确认 |
+| 底层采样率 | **8kHz** | 相邻原始采样点间隔为 **125μs**；这是时间分辨能力 |
+| 功率、能耗精度 | 查阅的该数据表没有单独给出统一的百分比误差规格 | 不能据电压、电流指标宣称功率或能耗误差为 ±1% |
+
+当前默认的 **10ms** 是 QIS 软件重采样后的输出间隔，对应约 80 个底层采样周期。
+官方技术手册说明，AC 设备保留全速数据，并使用 QIS / QPS 的 `stream mode resample`
+进行软件平均，见[技术手册第 31 页](https://quarch.com/wp-content/uploads/2024/09/QTL2843-IEC-Mains-PAM-Technical-Manual-1.pdf#page=31)。
+
+脚本按 `能耗 J = Σ(区间平均瞬时功率 W × 区间时长 s)` 积分。
+实际 SQL 测量还需考虑起止区间量化、命令通信延迟，以及同机控制程序计入整机功耗的影响。
+输出的小数位数和代码测试通过，均不能作为硬件精度的校准证明。
+
+无需打开 PDF 时，可直接查看[官方 QTL2843 产品网页](https://quarch.com/product/ac-power-analyser/)，
+其中介绍了 8,000 次/秒采样、三个设备端口及 Python 自动化；该网页没有列出上述具体精度公式。
+需要确认电流公式或取得本机校准说明时，可通过[官方支持页面](https://quarch.com/support/)联系厂商。
 
 ## 已验证基线
 
