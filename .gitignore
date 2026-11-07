@@ -11,6 +11,7 @@ __pycache__/
 /measure_analysis/
 /data/raw/
 /results/
+/validation/
 
 # Local credentials and runtime logs.
 .env

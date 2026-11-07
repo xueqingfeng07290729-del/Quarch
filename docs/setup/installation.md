@@ -24,7 +24,7 @@ sudo apt-get update
 sudo apt-get install -y git curl ca-certificates python3 python3-venv usbutils
 ```
 
-新机器首次取得文档和检查工具时，可执行：
+新机器首次取得测量代码、文档和检查工具时，可执行：
 
 ```bash
 git clone https://github.com/xueqingfeng07290729-del/Quarch.git /home/ubuntu/Quarch
@@ -153,7 +153,9 @@ python tools/setup/check_connection.py --backend qis
 
 工具内部调用 `startLocalQis(headless=True)`，然后查询 QIS 版本、发现 USB 设备并读取身份。它只启动 QIS，不启动 QPS。正常情况下会看到 QIS `v1.54` 和 `USB::QTL2843-03-002`；结束时会关闭由本次检查创建的 QIS，保留检查前就已经运行的 QIS。
 
-至此，安装、Java 执行权限、普通用户 USB 权限和 QIS 通信链路均有实际检查。录制数据还需另行配置采集时长、输出间隔和存储位置；本工具本身不采集功率曲线。
+至此，安装、Java 执行权限、普通用户 USB 权限和 QIS 通信链路均有实际检查。检查工具本身不采集功率曲线。
+接下来按[命令控制采集指南](../usage/command-controlled-capture.md)启动本仓库的 `quarch_capture` 程序；
+默认输出间隔为 10ms，每次 `start` 都必须指定通道。
 
 ## 常见安装问题
 
