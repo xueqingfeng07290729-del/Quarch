@@ -10,12 +10,13 @@ Command-controlled mode: serve, start, stop, status and shutdown.
 
 import argparse
 import csv
-from contextlib import suppress
+from contextlib import nullcontext, suppress
 from datetime import datetime
-import json
 import math
 from pathlib import Path
 import sys
+
+from .common import device_lock, termination_guard, write_json_atomic
 
 
 def export_channel_csv(source, target, channel):
@@ -58,6 +59,11 @@ def main():
     if args.device and args.channel is None:
         parser.error("--channel is required with --device; choose L1, L2 or L3")
 
+    with device_lock(args.device) if args.device else nullcontext():
+        return _capture(args, parser)
+
+
+def _capture(args, parser):
     output = (args.output or Path(datetime.now().strftime(f"qtl2843_{args.channel}_%Y%m%d_%H%M%S.csv"))).resolve()
     all_channels = output.with_name(output.stem + ".all-channels.csv")
     energy_file = output.with_suffix(".energy.json")
@@ -101,6 +107,8 @@ def main():
         print("Instrument:\n", identity)
         if "2843" not in identity:
             raise RuntimeError("The instrument did not identify itself as QTL2843; capture was not started.")
+        if device.send_command("rec?").strip().upper() != "OFF":
+            raise RuntimeError("Instrument is already recording; its configuration was not changed")
 
         def configure(command):
             reply = device.send_command(command)
@@ -147,7 +155,7 @@ def main():
         from .energy import energy_from_csv
         energy = energy_from_csv(output, channel=args.channel, expected_duration_s=args.seconds)
         energy["all_channels_csv"] = str(all_channels)
-        energy_file.write_text(json.dumps(energy, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
+        write_json_atomic(energy_file, energy)
         print(f"Output interval: {energy['interval_s'] * 1000:g} ms; covered duration: {energy['duration_s']:g} s")
         if not energy["requested_duration_matches"]:
             print("Note: complete output bins cover a different duration from the request; energy refers to those bins.")
@@ -170,6 +178,7 @@ def main():
                 closeQis()
 
 
+@termination_guard()
 def cli():
     try:
         return main()

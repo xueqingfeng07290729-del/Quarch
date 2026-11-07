@@ -18,10 +18,10 @@ import statistics
 import subprocess
 import sys
 import time
-import uuid
 
-from quarch_capture.commands import DEFAULT_SOCKET, send_command
-from tools.benchmark.tpch_timing import DuckDBSession, ResourceObserver, load_queries, query_ids, save_json
+from quarch_capture.client import DEFAULT_SOCKET, capture_window, require_idle
+from quarch_capture.common import atomic_output, termination_guard
+from tools.benchmark.tpch_timing import DuckDBSession, ResourceObserver, finalize_benchmark, load_queries, query_ids, save_json
 
 
 BATCH_FIELDS = [
@@ -39,22 +39,6 @@ SUMMARY_FIELDS = [
 ]
 
 
-def command(socket_path, request):
-    response = send_command(socket_path, request)
-    if not response.get("ok"):
-        raise RuntimeError(f"Recorder {request['command']} failed: {response}")
-    return response
-
-
-def require_idle(socket_path):
-    status = command(socket_path, {"command": "status"})
-    if status.get("protocol_version", 0) < 2:
-        raise RuntimeError("Recorder protocol 2 is required; restart quarch_capture serve to load the updated service")
-    if status.get("state") != "idle" or status.get("reader_active") or status.get("device_record_state") != "OFF":
-        raise RuntimeError("Recorder must already be idle with recording OFF; active sessions are not interrupted")
-    return status
-
-
 def batch_size(pilot_seconds, target_seconds, maximum):
     estimate = statistics.median(pilot_seconds)
     if not math.isfinite(estimate) or estimate <= 0:
@@ -62,66 +46,13 @@ def batch_size(pilot_seconds, target_seconds, maximum):
     return min(maximum, max(1, math.ceil(target_seconds / estimate)))
 
 
-def preserve_response(capture_path, response):
-    """Keep server partial results even when its command reports failure."""
-    capture = response.get("result")
-    if capture is None:
-        capture = {"complete": False, "errors": [response.get("error", "No capture result returned")],
-                   "recorder_response": response}
-    save_json(capture_path, capture)
-    return capture
-
-
-def stop_owned_capture(socket_path, started, capture_path):
-    response = send_command(socket_path, {"command": "stop", "session_id": started["session_id"]})
-    capture = preserve_response(capture_path, response)
-    if not response.get("ok"):
-        raise RuntimeError(f"Recorder stop failed: {response}")
-    if response.get("already_stopped"):
-        raise RuntimeError("Measurement stopped before the SQL batch finished; partial energy was rejected")
-    if capture.get("session_id") != started["session_id"] or capture.get("request_id") != started["request_id"]:
-        raise RuntimeError("Recorder session changed; energy cannot be attributed to this batch")
-    return capture
-
-
 def measure_batch(session, sql, executions, socket_path, channel, label, save_csv, capture_path):
-    # Only start/stop enclose the SQL batch; pilots, CSV/JSON writes and sleeps
-    # are outside it. One CLI exchange avoids per-execution Python round trips.
-    require_idle(socket_path)
-    request_id, start_deadline = uuid.uuid4().hex, time.time() + 45
-    try:
-        started = command(socket_path, {"command": "start", "channel": channel,
-                                       "label": label, "save_csv": save_csv,
-                                       "request_id": request_id, "start_deadline": start_deadline})
-        if not started.get("session_id") or started.get("request_id") != request_id:
-            raise RuntimeError("Invalid start response; request ownership could not be confirmed")
-    except BaseException as exc:
-        try:
-            cancelled = send_command(socket_path, {"command": "cancel_start", "request_id": request_id,
-                                                   "start_deadline": start_deadline})
-            preserve_response(capture_path, cancelled)
-            if not cancelled.get("ok"):
-                raise RuntimeError(str(cancelled))
-        except BaseException as cleanup:
-            exc.add_note(f"Start cancellation could not be confirmed: {cleanup}. Check recorder status.")
-        raise
-    sql_error = None
-    try:
-        statement = sql.rstrip()
-        if not statement.endswith(";"):
-            statement += ";"
+    statement = sql.rstrip()
+    if not statement.endswith(";"):
+        statement += ";"
+    with capture_window(socket_path=socket_path, channel=channel, label=label,
+                        save_csv=save_csv, capture_path=capture_path) as capture:
         timing = session.run("\n".join([statement] * executions))
-    except BaseException as exc:
-        sql_error = exc
-    try:
-        capture = stop_owned_capture(socket_path, started, capture_path)
-    except BaseException as cleanup:
-        if sql_error is not None:
-            sql_error.add_note(f"Capture cleanup also failed: {cleanup}")
-            raise sql_error
-        raise
-    if sql_error is not None:
-        raise sql_error
     if not capture.get("complete") or capture.get("errors") or capture.get("device_record_state") != "OFF":
         raise RuntimeError(f"Incomplete capture: {capture.get('errors')}")
     if capture.get("selected_channel") != channel:
@@ -181,12 +112,13 @@ def summarize(rows):
 
 
 def write_summary(output, rows):
-    with (output / "summary.csv").open("w", newline="", encoding="utf-8") as handle:
+    with atomic_output(output / "summary.csv", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=SUMMARY_FIELDS)
         writer.writeheader()
         writer.writerows(summarize(rows))
 
 
+@termination_guard()
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--database", type=Path, required=True)
@@ -247,7 +179,7 @@ def main(argv=None):
     save_json(output / "run.json", metadata)
     print("Output:", output, flush=True)
     rows = []
-    session = observer = None
+    session = observer = error = None
     try:
         session = DuckDBSession(executable, database, args.timeout)
         session.configure(args.threads, args.memory_limit, output / "spill")
@@ -288,24 +220,16 @@ def main(argv=None):
                         time.sleep(args.sleep)
         metadata["status"] = "complete"
     except BaseException as exc:
+        error = exc
         metadata.update(status="failed", error=f"{type(exc).__name__}: {exc}",
                         error_notes=getattr(exc, "__notes__", []))
         raise
     finally:
-        if observer:
-            observer.close()
-            metadata.update(process_peak_rss_mib=observer.peak_rss_mib,
-                            peak_spill_bytes_observed=observer.peak_temp_bytes,
-                            spill_observation_interval_s=.2)
-        if session:
-            session.close()
-        current = database.stat()
-        metadata.update(database_file_unchanged=(current.st_size, current.st_mtime_ns) == (original.st_size, original.st_mtime_ns),
-                        completed_batches=len(rows),
-                        completed_queries=sum(row["batches"] == args.runs for row in summarize(rows)),
-                        finished_at=datetime.now(timezone.utc).isoformat())
-        write_summary(output, rows)
-        save_json(output / "run.json", metadata)
+        finalize_benchmark(metadata, error, session, observer, database, original, output / "run.json",
+                           lambda: metadata.update(completed_batches=len(rows),
+                                                   completed_queries=sum(row["batches"] == args.runs for row in summarize(rows)),
+                                                   finished_at=datetime.now(timezone.utc).isoformat()),
+                           lambda: write_summary(output, rows))
     print("Completed:", output / "summary.csv", flush=True)
     return 0
 

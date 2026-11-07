@@ -56,7 +56,7 @@ class Recorder:
             if save_csv is not None and not isinstance(save_csv, bool):
                 raise ValueError("save_csv must be true or false")
             save_csv = self.save_csv if save_csv is None else save_csv
-            name = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ") + f"_{label}_{channel}_{uuid.uuid4().hex[:6]}"
+            name = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ") + f"_{channel}_{uuid.uuid4().hex[:8]}"
             csv_path = self.output_dir / (name + ".csv") if save_csv else None
             sink = EnergySink(channel, self.period, csv_path)
             session = {
@@ -93,15 +93,17 @@ class Recorder:
                 self.cancelled_starts[request_id] = start_deadline
             if self.session and self.session.get("request_id") == request_id:
                 response = self.stop(session_id=self.session["session_id"])
-                # Cancellation can be successful even when no SQL/samples ran.
-                response["state"] = "error" if self.fault or self.persistence_error else "idle"
-                return {**response, "cancelled": True}
-            if self.last_result and self.last_result.get("request_id") == request_id:
+            elif self.last_result and self.last_result.get("request_id") == request_id:
                 if not self.last_result.get("summary_saved"):
                     self._save_last_result()
-                return {"state": "error" if self.persistence_error or self.fault else "recording" if self.session else "idle", "cancelled": True,
-                        "already_stopped": True, "result": self.last_result}
-            return {"state": "recording" if self.session else "idle", "cancelled": True}
+                response = {"already_stopped": True, "result": self.last_result}
+            else:
+                response = {}
+            # Cancellation acknowledges the actual state, including failed starts
+            # that never reached self.session. It must not hide an ON/unknown device.
+            status = self.status()
+            return {**response, "state": status["state"], "device_record_state": status["device_record_state"],
+                    "cancelled": status["state"] != "error", "error": status.get("fault") or status.get("persistence_error")}
 
     def _save_last_result(self):
         result = self.last_result
@@ -198,10 +200,14 @@ class Recorder:
                 result["persistence_error"] = self.persistence_error
             return result
 
-    def request_shutdown(self):
+    def request_shutdown(self, force=False):
+        if not isinstance(force, bool):
+            raise ValueError("force must be true or false")
         with self.lock:
-            self.closing = True
             response = self.stop() if self.session or self.persistence_error else {"state": "error" if self.fault else "idle"}
+            if self.persistence_error and not force:
+                return {**response, "shutdown": False, "error": "Summary is not saved; retry stop before shutdown, or use --force"}
+            self.closing = True
             response["shutdown"] = True
             return response
 

@@ -17,7 +17,7 @@ class EnergyBatchTests(unittest.TestCase):
             batch_size([0], 5, 100)
 
     def test_active_recorder_is_not_interrupted(self):
-        with patch("tools.benchmark.tpch_energy.send_command", return_value={"ok": True, "state": "recording", "protocol_version": 2}) as send:
+        with patch("quarch_capture.client.send_command", return_value={"ok": True, "state": "recording", "protocol_version": 2}) as send:
             with self.assertRaisesRegex(RuntimeError, "idle"):
                 require_idle("socket")
             self.assertEqual(send.call_count, 1)
@@ -50,7 +50,7 @@ class EnergyBatchTests(unittest.TestCase):
             return {"elapsed_s": .8, "driver_wall_s": .81, "statement_count": 2}
 
         with tempfile.TemporaryDirectory() as folder, \
-                patch("tools.benchmark.tpch_energy.send_command", side_effect=control):
+                patch("quarch_capture.client.send_command", side_effect=control):
             path = Path(folder) / "capture.json"
             try:
                 result = measure_batch(Mock(run=execute), "SELECT 42", 2, "socket", "L2", "test", False, path)

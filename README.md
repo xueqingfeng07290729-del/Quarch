@@ -41,7 +41,8 @@ Quarch/
 │   ├── qis_backend.py            # QIS 通信、采集配置、缓冲读取
 │   ├── measurement.py            # 测量会话、状态与结果管理
 │   ├── commands.py               # 本地命令服务、客户端与命令行参数
-│   ├── common.py                 # 共享定义、UTC 时间与原子 JSON 保存
+│   ├── client.py                 # 自动测量窗口、会话归属与异常恢复
+│   ├── common.py                 # 原子保存、设备锁、退出及收尾处理
 │   ├── recorder.py               # 兼容旧导入与旧模块入口
 │   └── energy.py                 # CSV 离线能耗积分
 ├── tools/
@@ -57,6 +58,9 @@ Quarch/
 ├── tests/
 │   ├── test_command_recorder.py   # 命令控制与能耗统计测试
 │   ├── test_measurement_failures.py # 回复丢失、会话竞争和写盘失败的回归测试
+│   ├── test_benchmark_recovery.py # 基准测试收尾与完成计数
+│   ├── test_capture_entry.py     # 固定时长入口的设备保护
+│   ├── test_energy.py            # 流式积分、报告保存与内存验证
 │   ├── test_tpch_timing.py        # TPC-H 计时与 CLI 只读测试
 │   └── test_tpch_energy.py        # 能耗边界、失败处理与批量统计测试
 ├── results/                      # 本机结果与日志，Git 忽略
@@ -70,9 +74,15 @@ Quarch/
 `recorder.py` 保留旧导入路径兼容性；新增 Python 调用可从 `quarch_capture.commands` 导入
 `DEFAULT_SOCKET`、`send_command`。命令行用法保持一致。
 
+自动化脚本优先使用 `client.capture_window`：在上下文内运行被测任务，退出时停止本段测量并保存结果，
+统一处理 SIGTERM、启动回复丢失和停止通信恢复。TPC-H 脚本也复用这个入口。
+离线 CSV 分析复用 `stream_data.EnergySink` 流式积分，避免同时维护两套计算逻辑。
+
 TPC-H 自动测量使用协议版本 2：启动请求支持超时取消，停止时校验会话编号，提前停止的测量会被拒绝。
 更新代码后，已有的常驻服务需要在空闲时重启一次；`status` 中应显示 `protocol_version: 2`。
 能耗 JSON 采用原子替换保存；若写盘失败，服务保留结果并阻止下一次采集，可修复磁盘问题后再次 `stop` 补写。
+有未保存结果时 `shutdown` 默认拒绝退出；只有显式 `shutdown --force` 才允许放弃保存后退出。
+文件名使用固定长度会话标识，完整标签保存在 JSON 中，支持中文标签。
 
 ## 日常使用入口
 

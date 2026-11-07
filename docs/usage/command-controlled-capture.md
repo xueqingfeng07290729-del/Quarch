@@ -159,27 +159,25 @@ CSV 关闭时仍只保留累计值，内存不会随测量时长累积。
 
 ## 在 Python 数据库测试中调用
 
-数据库驱动负责执行 SQL 并等待完成。DuckDB 自动化测试可复用现有的 `DuckDBSession` 与
-`measure_batch`，后者通过本地 Unix socket 调用服务，并处理启动回复丢失、会话校验和异常清理。
-下面假定 `duckdb_session` 已初始化为 `DuckDBSession`，每个 `sql` 是单条 SELECT：
+数据库驱动负责执行 SQL 并等待完成。自动化测试统一使用 `capture_window`，
+在上下文内运行任务，退出后读取这段能耗。下面的 `execute_and_wait(sql)` 需要换成实际数据库调用：
 
 ```python
 import time
 from pathlib import Path
 import uuid
-from quarch_capture.commands import DEFAULT_SOCKET
-from tools.benchmark.tpch_energy import measure_batch
+from quarch_capture.client import capture_window
 
 
 output = Path("results/sql_sessions")
 output.mkdir(parents=True, exist_ok=True)
 for index, sql in enumerate(sql_statements, 1):
-    result = measure_batch(
-        duckdb_session, sql, executions=1, socket_path=DEFAULT_SOCKET,
-        channel="L2", label=f"sql_{index:03d}", save_csv=False,
+    with capture_window(
+        channel="L2", label=f"sql_{index:03d}",
         capture_path=output / f"sql_{index:03d}_{uuid.uuid4().hex}.json",
-    )
-    print(index, result["sql_mean_s"], "s", result["energy_mean_J"], "J")
+    ) as result:
+        execute_and_wait(sql)
+    print(index, result["L2"]["energy_J"], "J")
     time.sleep(5)  # 仪器此时为 OFF，这 5 秒不计入任何一段
 ```
 
@@ -194,6 +192,10 @@ for index, sql in enumerate(sql_statements, 1):
 `stop` 可携带 `session_id`，服务端在同一把锁内先校验再停止；命令行也支持 `stop --session-id ...`。
 自动化客户端必须拒绝 `already_stopped: true` 的能耗，避免把提前终止的采集计入完整 SQL。
 写盘失败后结果的 `summary_saved` 为 `false`，服务保留结果，可在修复磁盘问题后重试 `stop`。
+此时 `shutdown` 会拒绝退出，服务仍可接收重试；`shutdown --force` 明确允许未保存结果随进程退出而丢失。
+SIGTERM 在自动测量窗口内转换为可清理的中断；SIGKILL 或断电无法执行 Python 清理逻辑。
+停止通信失败后会做有限恢复，并拒绝把恢复期间延长的窗口作为正常测量结果。
+完整标签保留在 JSON 中，实际文件名使用短 ASCII 会话标识，避免长中文标签超过文件系统限制。
 
 ## 时间边界与测量含义
 
@@ -214,6 +216,7 @@ for index, sql in enumerate(sql_statements, 1):
 ## 可选：固定时长采集与完整通道分析
 
 固定时长模式会保存所选一路 CSV、全部通道 CSV 和所选一路的能耗 JSON。
+它与常驻模式共用设备锁，并在配置前检查设备是否空闲。
 先正常退出占用同一台仪器的常驻程序，再运行固定时长采集：
 
 ```bash

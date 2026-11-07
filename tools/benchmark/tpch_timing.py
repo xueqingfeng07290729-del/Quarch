@@ -20,6 +20,10 @@ import threading
 import time
 import uuid
 
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from quarch_capture.common import atomic_output, finalize_run, termination_guard, write_json_atomic as save_json
 
 TIMER = re.compile(r"Run Time \(s\): real ([\d.eE+-]+) user ([\d.eE+-]+) sys ([\d.eE+-]+)")
 CSV_FIELDS = ["database", "query_id", "phase", "iteration", "elapsed_s", "user_cpu_s", "system_cpu_s", "driver_wall_s", "statement_count"]
@@ -216,8 +220,28 @@ def summarize(rows):
     return result
 
 
-def save_json(path, content):
-    path.write_text(json.dumps(content, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+def finalize_benchmark(metadata, error, session, observer, database, original, metadata_path, *results):
+    def collect():
+        if observer:
+            metadata.update(process_peak_rss_mib=observer.peak_rss_mib,
+                            peak_spill_bytes_observed=observer.peak_temp_bytes,
+                            spill_observation_interval_s=.2)
+        current = database.stat()
+        metadata["database_file_unchanged"] = (current.st_size, current.st_mtime_ns) == (original.st_size, original.st_mtime_ns)
+    finalize_run(metadata, error,
+                 lambda: observer.close() if observer else None,
+                 lambda: session.close() if session else None,
+                 collect, *results, lambda: save_json(metadata_path, metadata))
+
+
+def write_timing_summary(output, rows, runs, metadata):
+    summary = summarize(rows)
+    with atomic_output(output / "summary.csv", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["query_id", "runs", "mean_s", "median_s", "min_s", "max_s", "stdev_s"])
+        writer.writeheader()
+        writer.writerows(summary)
+    metadata.update(total_query_medians_s=sum(row["median_s"] for row in summary),
+                    queries_completed=sum(row["runs"] == runs for row in summary))
 
 
 def load_queries(executable, database):
@@ -248,7 +272,7 @@ def benchmark_database(executable, database, queries, args, output):
                 "status": "running"}
     save_json(output / "metadata.json", metadata)
     rows = []
-    session = observer = None
+    session = observer = error = None
     try:
         session = DuckDBSession(executable, database, args.timeout)
         session.configure(args.threads, args.memory_limit, spill)
@@ -272,29 +296,15 @@ def benchmark_database(executable, database, queries, args, output):
         metadata["status"] = "complete"
         return summarize(rows)
     except BaseException as exc:
-        metadata.update(status="failed", error=f"{type(exc).__name__}: {exc}")
+        error = exc
+        metadata.update(status="failed", error=f"{type(exc).__name__}: {exc}", error_notes=getattr(exc, "__notes__", []))
         raise
     finally:
-        if observer:
-            observer.close()
-            metadata.update(process_peak_rss_mib=observer.peak_rss_mib,
-                            peak_spill_bytes_observed=observer.peak_temp_bytes,
-                            spill_observation_interval_s=.2)
-        if session:
-            session.close()
-        current = database.stat()
-        metadata["database_file_unchanged"] = current.st_size == original.st_size and current.st_mtime_ns == original.st_mtime_ns
-        summary = summarize(rows)
-        with (output / "summary.csv").open("w", newline="", encoding="utf-8") as handle:
-            fields = ["query_id", "runs", "mean_s", "median_s", "min_s", "max_s", "stdev_s"]
-            writer = csv.DictWriter(handle, fieldnames=fields)
-            writer.writeheader()
-            writer.writerows(summary)
-        metadata["total_query_medians_s"] = sum(row["median_s"] for row in summary)
-        metadata["queries_completed"] = len(summary)
-        save_json(output / "metadata.json", metadata)
+        finalize_benchmark(metadata, error, session, observer, database, original, output / "metadata.json",
+                           lambda: write_timing_summary(output, rows, args.runs, metadata))
 
 
+@termination_guard()
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--database", type=Path, action="append", required=True, help="Existing database; repeat to compare SFs")
@@ -357,4 +367,6 @@ if __name__ == "__main__":
         raise SystemExit(130)
     except Exception as exc:
         print(f"Error: {exc}", file=sys.stderr)
+        for note in getattr(exc, "__notes__", []):
+            print(note, file=sys.stderr)
         raise SystemExit(1)

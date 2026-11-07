@@ -29,8 +29,11 @@ class EnergySink:
             if len(timestamps) != 1:
                 raise ValueError("QIS returned an invalid timestamp header")
             self.time_index = timestamps[0]
-            units = {"ns": 1_000_000_000, "us": 1_000_000, "ms": 1000, "s": 1}
-            self.time_divisor = units[headers[self.time_index].split()[-1].lower()]
+            units = {"ns": 1_000_000_000, "us": 1_000_000, "µs": 1_000_000, "μs": 1_000_000, "ms": 1000, "s": 1}
+            unit = headers[self.time_index].split()[-1].lower()
+            if unit not in units:
+                raise ValueError(f"Unsupported timestamp unit: {unit}")
+            self.time_divisor = units[unit]
             power_name = f"{self.channel}_PInst VA mVA"
             if power_name not in headers:
                 raise ValueError(f"QIS did not provide the selected power channel: {power_name}")

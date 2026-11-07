@@ -2,8 +2,6 @@
 
 import argparse
 import errno
-import fcntl
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -15,12 +13,12 @@ import stat
 import sys
 import threading
 
-from .common import CHANNELS
+from .common import CHANNELS, RUNTIME_DIR, device_lock
 from .measurement import Recorder
 from .qis_backend import QisBackend
 
 
-DEFAULT_SOCKET = Path.home() / ".cache/quarch/recorder.sock"
+DEFAULT_SOCKET = RUNTIME_DIR / "recorder.sock"
 
 
 def interval_seconds(value):
@@ -59,8 +57,8 @@ class CommandHandler(socketserver.StreamRequestHandler):
             elif command == "status":
                 payload = recorder.status()
             elif command == "shutdown":
-                payload = recorder.request_shutdown()
-                shutdown = True
+                payload = recorder.request_shutdown(request.get("force", False))
+                shutdown = payload["shutdown"]
             else:
                 raise ValueError("Unknown command")
             response = {"ok": payload.get("state") != "error", **payload}
@@ -90,17 +88,7 @@ def serve(args):
     if len(os.fsencode(path)) > 100:
         raise ValueError("Unix socket path is too long")
     path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    # A separate device lock prevents two instances using different sockets
-    # from recording the same instrument through this controller.
-    key = hashlib.sha256(args.device.lower().encode()).hexdigest()[:16]
-    DEFAULT_SOCKET.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    device_lock = DEFAULT_SOCKET.parent / ("device-" + key + ".lock")
-    with device_lock.open("a+") as lock:
-        os.chmod(device_lock, 0o600)
-        try:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
-            raise RuntimeError("A recorder already owns this device")
+    with device_lock(args.device):
         if path.exists():
             if not stat.S_ISSOCK(path.lstat().st_mode) or path.lstat().st_uid != os.getuid():
                 raise RuntimeError("Refusing to replace a non-owned socket path")
@@ -122,8 +110,14 @@ def serve(args):
                 socket_inode = path.stat().st_ino
                 server.recorder = recorder
                 previous = {}
+                def stop_server():
+                    response = recorder.request_shutdown()
+                    if response["shutdown"]:
+                        server.shutdown()
+                    else:
+                        print(json.dumps(response, ensure_ascii=False), file=sys.stderr, flush=True)
                 def interrupted(signum, frame):
-                    threading.Thread(target=server.shutdown, daemon=True).start()
+                    threading.Thread(target=stop_server, daemon=True).start()
                 for signum in [signal.SIGTERM, signal.SIGINT]:
                     previous[signum] = signal.signal(signum, interrupted)
                 try:
@@ -157,6 +151,8 @@ def main(argv=None):
         sub.add_argument("--timeout", type=float, default=45)
         if command == "stop":
             sub.add_argument("--session-id", help="Stop only this session; reject a different active measurement")
+        if command == "shutdown":
+            sub.add_argument("--force", action="store_true", help="Exit even if an energy summary could not be saved")
         if command == "start":
             sub.add_argument("--label", default="measurement")
             sub.add_argument("--channel", type=str.upper, choices=CHANNELS, required=True,
@@ -172,6 +168,8 @@ def main(argv=None):
         request.update(label=args.label, channel=args.channel, save_csv=None if args.csv is None else args.csv == "on")
     elif args.command == "stop" and args.session_id is not None:
         request["session_id"] = args.session_id
+    elif args.command == "shutdown" and args.force:
+        request["force"] = True
     response = send_command(args.socket.expanduser(), request, args.timeout)
     print(json.dumps(response, ensure_ascii=False, indent=2, allow_nan=False))
     return 0 if response.get("ok") else 1
