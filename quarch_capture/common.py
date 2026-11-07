@@ -2,11 +2,13 @@
 
 from datetime import datetime, timezone
 from contextlib import contextmanager, suppress
+import argparse
 import fcntl
 import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import signal
 import tempfile
 import threading
@@ -18,6 +20,17 @@ RUNTIME_DIR = Path.home() / ".cache/quarch"
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat(timespec="microseconds")
+
+
+def interval_seconds(value):
+    match = re.fullmatch(r"([1-9]\d*)(us|ms)", value.lower())
+    if not match:
+        raise argparse.ArgumentTypeError("Use a positive integer interval such as 125us or 10ms")
+    amount, unit = match.groups()
+    result = int(amount) / (1_000_000 if unit == "us" else 1000)
+    if result < .000125:
+        raise argparse.ArgumentTypeError("QTL2843 output intervals must be at least 125us")
+    return result
 
 
 @contextmanager

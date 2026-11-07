@@ -13,6 +13,7 @@ import csv
 from contextlib import nullcontext, suppress
 from datetime import datetime
 import math
+import os
 from pathlib import Path
 import sys
 
@@ -42,6 +43,9 @@ def export_channel_csv(source, target, channel):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "watch":
+        from .watch import main as watch_main
+        return watch_main(sys.argv[2:])
     if len(sys.argv) > 1 and sys.argv[1] in ("serve", "start", "stop", "status", "shutdown"):
         from .commands import main as commands_main
         return commands_main(sys.argv[1:])
@@ -182,11 +186,19 @@ def _capture(args, parser):
 def cli():
     try:
         return main()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt as exc:
         print("Capture interrupted.", file=sys.stderr)
+        for note in getattr(exc, "__notes__", []):
+            print(note, file=sys.stderr)
         return 130
+    except BrokenPipeError:
+        with open(os.devnull, "w") as null:
+            os.dup2(null.fileno(), sys.stdout.fileno())
+        return 0
     except Exception as exc:
         print(f"Error: {exc}", file=sys.stderr)
+        for note in getattr(exc, "__notes__", []):
+            print(note, file=sys.stderr)
         return 1
 
 

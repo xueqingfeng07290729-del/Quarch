@@ -26,6 +26,12 @@ class SimulatedBackend:
         self.error = None
         self.fail_stop = False
         self.begin_count = self.end_count = 0
+        self.resample, self.read_batch_interval_s = "10ms", .1
+
+    def set_resample(self, resample):
+        if self.active:
+            raise RuntimeError("Cannot change interval while recording")
+        self.resample = resample
 
     def begin(self, sink):
         self.begin_count += 1
@@ -52,10 +58,10 @@ class SimulatedBackend:
 
 
 @contextmanager
-def simulated_service():
+def simulated_service(backend=None):
     with tempfile.TemporaryDirectory() as folder:
         output = Path(folder)
-        backend = SimulatedBackend()
+        backend = backend or SimulatedBackend()
         recorder = Recorder(backend, "L2", .01, output)
         socket_path = output / "test.sock"
         with LocalServer(str(socket_path), CommandHandler) as server:

@@ -12,6 +12,7 @@
 4. [用开始／结束命令分别测量 SQL，可选保存 CSV](docs/usage/command-controlled-capture.md)
 5. [DuckDB TPC-H 逐查询计时与 SF10／20／30 选择](docs/usage/tpch-timing.md)
 6. [DuckDB TPC-H 逐查询耗时与能耗](docs/usage/tpch-energy.md)
+7. [Quarch watch：终端逐点查看功率](docs/usage/live-watch.md)
 
 ## 目录结构
 
@@ -19,6 +20,8 @@
 Quarch/
 ├── README.md
 ├── .gitignore
+├── bin/
+│   └── Quarch                   # 命令入口，自动使用项目虚拟环境
 ├── docs/
 │   ├── setup/
 │   │   ├── installation.md       # 下载、虚拟环境、QIS 运行包及验证
@@ -27,7 +30,8 @@ Quarch/
 │   ├── usage/
 │   │   ├── command-controlled-capture.md # 常驻采集、逐条 SQL、CSV 开关
 │   │   ├── tpch-timing.md        # DuckDB 耗时脚本、规模选择与实测
-│   │   └── tpch-energy.md        # 批量重复查询，测耗时和整机能耗
+│   │   ├── tpch-energy.md        # 批量重复查询，测耗时和整机能耗
+│   │   └── live-watch.md         # 终端实时功率、间隔参数与停止行为
 │   └── diagrams/
 │       └── current-wiring.mmd    # 接线简图 Mermaid 源文件
 ├── config/
@@ -42,6 +46,7 @@ Quarch/
 │   ├── measurement.py            # 测量会话、状态与结果管理
 │   ├── commands.py               # 本地命令服务、客户端与命令行参数
 │   ├── client.py                 # 自动测量窗口、会话归属与异常恢复
+│   ├── watch.py                  # 逐点功率输出与断连自动停止
 │   ├── common.py                 # 原子保存、设备锁、退出及收尾处理
 │   ├── recorder.py               # 兼容旧导入与旧模块入口
 │   └── energy.py                 # CSV 离线能耗积分
@@ -61,6 +66,7 @@ Quarch/
 │   ├── test_benchmark_recovery.py # 基准测试收尾与完成计数
 │   ├── test_capture_entry.py     # 固定时长入口的设备保护
 │   ├── test_energy.py            # 流式积分、报告保存与内存验证
+│   ├── test_watch.py             # 功率输出、退出停止与间隔恢复
 │   ├── test_tpch_timing.py        # TPC-H 计时与 CLI 只读测试
 │   └── test_tpch_energy.py        # 能耗边界、失败处理与批量统计测试
 ├── results/                      # 本机结果与日志，Git 忽略
@@ -107,6 +113,16 @@ cd /home/ubuntu/Quarch
 # 可选：对保存的 CSV 离线复核能耗
 .venv/bin/python -m quarch_capture.energy results/sessions/实际文件名.csv --channel L2
 ```
+
+安装[命令入口](docs/setup/installation.md#8-安装-quarch-命令)后，可在任意目录运行：
+
+```bash
+Quarch watch --L2 --10ms
+Quarch watch --L2          # 默认 10ms；按 Ctrl+C 停止采集并退出
+```
+
+watch 复用空闲的常驻服务，逐行输出设备时间戳和功率 W；通道必须指定。
+详见 [watch 使用说明](docs/usage/live-watch.md)。
 
 `tools/setup/` 用于安装和排障，`tools/analysis/` 用于已有完整通道 CSV 的统计与绘图；
 日常开始／停止测量只使用 `python -m quarch_capture`。完整操作见[使用指南](docs/usage/command-controlled-capture.md)。

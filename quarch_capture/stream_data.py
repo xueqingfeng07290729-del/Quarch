@@ -9,7 +9,7 @@ import threading
 class EnergySink:
     """Bounded-memory interval integration, with optional selected-channel CSV."""
 
-    def __init__(self, channel, period, csv_path=None):
+    def __init__(self, channel, period, csv_path=None, on_sample=None):
         self.channel, self.period = channel, period
         self.csv_path = Path(csv_path) if csv_path else None
         self.handle = self.csv_path.open("x", newline="", encoding="utf-8") if self.csv_path else None
@@ -21,6 +21,7 @@ class EnergySink:
         self.sum_w = self.compensation = 0.0
         self.minimum = self.maximum = None
         self.first_t = self.last_t = None
+        self.on_sample = on_sample
 
     def set_header(self, header):
         with self.lock:
@@ -81,6 +82,8 @@ class EnergySink:
                 self.maximum = power_w if self.maximum is None else max(self.maximum, power_w)
                 if self.writer:
                     self.writer.writerow([row[i] for i in self.selected_indices])
+                if self.on_sample is not None:
+                    self.on_sample(timestamp / self.time_divisor, power_w)
 
     def snapshot(self):
         with self.lock:

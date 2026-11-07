@@ -5,7 +5,6 @@ import errno
 import json
 import os
 from pathlib import Path
-import re
 import signal
 import socket
 import socketserver
@@ -13,23 +12,12 @@ import stat
 import sys
 import threading
 
-from .common import CHANNELS, RUNTIME_DIR, device_lock
+from .common import CHANNELS, RUNTIME_DIR, device_lock, interval_seconds
 from .measurement import Recorder
 from .qis_backend import QisBackend
 
 
 DEFAULT_SOCKET = RUNTIME_DIR / "recorder.sock"
-
-
-def interval_seconds(value):
-    match = re.fullmatch(r"([1-9]\d*)(us|ms)", value.lower())
-    if not match:
-        raise argparse.ArgumentTypeError("Use a positive integer interval such as 125us or 10ms")
-    amount, unit = match.groups()
-    result = int(amount) / (1_000_000 if unit == "us" else 1000)
-    if result < .000125:
-        raise argparse.ArgumentTypeError("QTL2843 output intervals must be at least 125us")
-    return result
 
 
 class LocalServer(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
@@ -47,7 +35,11 @@ class CommandHandler(socketserver.StreamRequestHandler):
             request = json.loads(raw)
             command = request.get("command")
             recorder = self.server.recorder
-            if command == "start":
+            if command == "watch":
+                from .watch import stream_watch
+                stream_watch(self, request)
+                return
+            elif command == "start":
                 payload = recorder.start(request.get("label", "measurement"), request.get("channel"), request.get("save_csv"),
                                          request_id=request.get("request_id"), start_deadline=request.get("start_deadline"))
             elif command == "stop":

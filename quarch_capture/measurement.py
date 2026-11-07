@@ -10,7 +10,7 @@ import threading
 import time
 import uuid
 
-from .common import CHANNELS, utc_now, write_json_atomic
+from .common import CHANNELS, interval_seconds, utc_now, write_json_atomic
 from .stream_data import EnergySink
 
 
@@ -25,6 +25,7 @@ class Recorder:
         self.closing = False
         self.persistence_error = None
         self.cancelled_starts = {}
+        self.output_override = None
 
     @staticmethod
     def _validate_request(request_id, start_deadline):
@@ -34,7 +35,8 @@ class Recorder:
                 or not math.isfinite(start_deadline) or start_deadline > time.time() + 120):
             raise ValueError("start_deadline must be a finite Unix timestamp no more than 120s ahead")
 
-    def start(self, label="measurement", channel=None, save_csv=None, *, request_id=None, start_deadline=None):
+    def start(self, label="measurement", channel=None, save_csv=None, *, request_id=None, start_deadline=None,
+              resample=None, on_sample=None):
         with self.lock:
             self.cancelled_starts = {key: deadline for key, deadline in self.cancelled_starts.items()
                                      if deadline > time.time()}
@@ -56,9 +58,10 @@ class Recorder:
             if save_csv is not None and not isinstance(save_csv, bool):
                 raise ValueError("save_csv must be true or false")
             save_csv = self.save_csv if save_csv is None else save_csv
+            period = interval_seconds(resample) if resample is not None else self.period
             name = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ") + f"_{channel}_{uuid.uuid4().hex[:8]}"
             csv_path = self.output_dir / (name + ".csv") if save_csv else None
-            sink = EnergySink(channel, self.period, csv_path)
+            sink = EnergySink(channel, period, csv_path, on_sample=on_sample)
             session = {
                 "session_id": name, "label": label, "selected_channel": channel,
                 "csv_enabled": save_csv, "csv_path": str(csv_path) if csv_path else None,
@@ -67,12 +70,18 @@ class Recorder:
                 "request_id": request_id,
             }
             try:
+                if resample is not None:
+                    self.output_override = (self.backend.resample, self.backend.read_batch_interval_s)
+                    self.backend.set_resample(resample)
+                    self.backend.read_batch_interval_s = min(period, self.output_override[1])
                 session.update(self.backend.begin(sink))
             except Exception:
                 with suppress(Exception):
                     sink.close()
+                with suppress(Exception):
+                    self._restore_output()
                 try:
-                    if self.backend.record_state().upper() != "OFF" or self.backend.reader_active:
+                    if self.backend.record_state().upper() != "OFF" or self.backend.reader_active or self.output_override:
                         self.fault = "Start failed and the instrument could not be confirmed idle; shut down and inspect the device"
                 except Exception as exc:
                     self.fault = f"Start failed; recording state is unknown: {exc}"
@@ -82,6 +91,13 @@ class Recorder:
                 self.stop(session_id=session["session_id"])
                 raise RuntimeError("Start request expired while starting; stop was requested")
             return {"state": "recording", **{k: v for k, v in session.items() if k not in ["sink", "record_start_ack_monotonic"]}}
+
+    def _restore_output(self):
+        if self.output_override is not None:
+            resample, batch = self.output_override
+            self.backend.set_resample(resample)
+            self.backend.read_batch_interval_s = batch
+            self.output_override = None
 
     def cancel_start(self, request_id, start_deadline):
         """Cancel by client token, including when cancellation arrives before start."""
@@ -152,6 +168,11 @@ class Recorder:
             except Exception as exc:
                 errors.append(str(exc))
             result.update(session["sink"].snapshot())
+            try:
+                self._restore_output()
+            except Exception as exc:
+                self.fault = f"Could not restore the configured output interval: {exc}"
+                errors.append(self.fault)
             if not result["samples"]:
                 errors.append("No output samples were received; the interval may have been too short")
             result.update({
@@ -178,10 +199,12 @@ class Recorder:
             result = {
                 "state": state, "pid": os.getpid(), "configured_channel": self.channel,
                 "start_channel_required": True,
-                "default_csv_enabled": self.save_csv, "interval_s": self.period,
+                "default_csv_enabled": self.save_csv,
+                "interval_s": self.session["sink"].period if self.session else self.period,
                 "device_record_state": device_state,
                 "reader_active": reader_active,
                 "protocol_version": 2,
+                "live_watch": True,
             }
             if self.session:
                 result["active_session"] = {

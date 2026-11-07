@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""Use this checkout's Python environment, including when launched via a symlink."""
+import os
+from pathlib import Path
+import sys
+
+root = Path(__file__).resolve().parents[1]
+environment = root / ".venv"
+if Path(sys.prefix) != environment:
+    python = environment / "bin/python"
+    if not python.exists():
+        raise SystemExit("Project .venv is missing; follow docs/setup/installation.md first")
+    os.execv(str(python), [str(python), str(Path(__file__).resolve()), *sys.argv[1:]])
+sys.path.insert(0, str(root))
+from quarch_capture.capture import cli
+
+raise SystemExit(cli())

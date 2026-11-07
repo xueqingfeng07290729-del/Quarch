@@ -29,7 +29,8 @@ def preserve_response(path, response):
     if capture is None:
         capture = {"complete": False, "errors": [response.get("error") or "No capture result returned"],
                    "recorder_response": response}
-    write_json_atomic(path, capture)
+    if path is not None:
+        write_json_atomic(path, capture)
     return capture
 
 
@@ -53,7 +54,7 @@ def _cancel(socket_path, request, path):
         raise failure
 
 
-def _stop(socket_path, started, request, path):
+def _stop(socket_path, started, request, path, *, allow_already_stopped=False):
     stop = {"command": "stop", "session_id": started["session_id"]}
     try:
         response, failure = _exchange(socket_path, stop)
@@ -73,7 +74,7 @@ def _stop(socket_path, started, request, path):
         raise failure
     if not response.get("ok"):
         raise RuntimeError(f"Recorder stop failed: {response}")
-    if response.get("already_stopped"):
+    if response.get("already_stopped") and not allow_already_stopped:
         raise RuntimeError("Measurement stopped before the SQL batch finished; partial energy was rejected")
     if capture.get("session_id") != started["session_id"] or capture.get("request_id") != request["request_id"]:
         raise RuntimeError("Recorder session changed; energy cannot be attributed to this batch")

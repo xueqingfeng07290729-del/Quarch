@@ -157,6 +157,29 @@ python tools/setup/check_connection.py --backend qis
 接下来按[命令控制采集指南](../usage/command-controlled-capture.md)启动本仓库的 `quarch_capture` 程序；
 默认输出间隔为 10ms，每次 `start` 都必须指定通道。
 
+## 8. 安装 Quarch 命令
+
+把仓库入口链接到个人命令目录，只需执行一次：
+
+```bash
+cd /home/ubuntu/Quarch
+mkdir -p ~/.local/bin
+ln -s /home/ubuntu/Quarch/bin/Quarch ~/.local/bin/Quarch
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+若链接已经存在，无需重复创建。新登录时也需要 `~/.local/bin` 在 PATH 中；Ubuntu 通常自动添加该目录。
+入口会自动选择本项目的 `.venv`，无需手动激活虚拟环境。仓库移动后需更新链接。
+
+先按采集指南启动一次常驻服务，然后在任意目录执行：
+
+```bash
+Quarch watch --L2 --10ms
+# 或 Quarch watch --L2，默认 10ms
+```
+
+逐点输出与停止行为见 [watch 指南](../usage/live-watch.md)。
+
 ## 常见安装问题
 
 | 提示 / 现象 | 处理方向 |

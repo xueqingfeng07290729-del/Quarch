@@ -69,6 +69,7 @@ class QisBackend:
         self.error = None
         self.stop_requested = threading.Event()
         self.active_profile = None
+        self.read_batch_interval_s = READ_BATCH_INTERVAL_S
 
     def initialize(self):
         from quarchpy.device import quarchDevice, quarchPPM
@@ -93,9 +94,7 @@ class QisBackend:
             self.power = quarchPPM(self.device, skipDefaultSyntheticChannels=True)
             self.power.fixture_definition = self.device.send_command("fix:chan:xml?")
             self.synthetic_definitions = self.power.parse_synthetic_channels_from_instrument()
-            response = self.power.stream_resample_mode(self.resample)
-            if "fail" in response.lower() or "invalid" in response.lower():
-                raise RuntimeError(response)
+            self.set_resample(self.resample)
         except Exception:
             self.close()
             raise
@@ -112,6 +111,14 @@ class QisBackend:
     def reader_active(self):
         return bool(self.thread and self.thread.is_alive())
 
+    def set_resample(self, resample):
+        if self.reader_active or self.record_state().upper() != "OFF":
+            raise RuntimeError("Cannot change output interval while recording")
+        response = self.power.stream_resample_mode(resample)
+        if "fail" in response.lower() or "invalid" in response.lower():
+            raise RuntimeError(response)
+        self.resample = resample
+
     def configure_channels(self, channel, include_details):
         profile = (channel, include_details)
         functions = selected_synthetic_functions(self.synthetic_definitions, channel, include_details)
@@ -124,7 +131,7 @@ class QisBackend:
         return {
             "processing_profile": "selected_channel_details" if include_details else "energy_only",
             "synthetic_channels": len(functions),
-            "read_batch_interval_s": READ_BATCH_INTERVAL_S,
+            "read_batch_interval_s": self.read_batch_interval_s,
         }
 
     def begin(self, sink):
@@ -180,7 +187,7 @@ class QisBackend:
                             # do not busy-poll while that command completes.
                             time.sleep(.005)
                         else:
-                            self.stop_requested.wait(READ_BATCH_INTERVAL_S)
+                            self.stop_requested.wait(self.read_batch_interval_s)
             except Exception as exc:
                 self.error = str(exc)
                 if not self.stop_requested.is_set():
