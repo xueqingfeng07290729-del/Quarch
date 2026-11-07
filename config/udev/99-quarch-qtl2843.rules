@@ -1,0 +1,2 @@
+# Allow ubuntu to control this QTL2843 over USB, including after reconnection.
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="16d0", ATTR{idProduct}=="0449", ATTR{serial}=="QTL2843-03-002", OWNER="ubuntu", MODE="0660"

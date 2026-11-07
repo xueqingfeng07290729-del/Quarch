@@ -1,0 +1,18 @@
+# Local Python environment and third-party runtime/source downloads.
+/.venv/
+/QuarchPy/
+/downloads/
+__pycache__/
+*.py[cod]
+
+# Measurement files are managed separately from setup documentation.
+/*.csv
+/*.energy.json
+/measure_analysis/
+/data/raw/
+/results/
+
+# Local credentials and runtime logs.
+.env
+.env.*
+*.log
