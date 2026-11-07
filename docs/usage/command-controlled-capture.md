@@ -159,35 +159,41 @@ CSV 关闭时仍只保留累计值，内存不会随测量时长累积。
 
 ## 在 Python 数据库测试中调用
 
-数据库驱动仍负责执行 SQL 和取回结果。下面的 `execute_and_wait(sql)` 需要换成你的实际数据库调用；
-必须等待执行完成，异步提交和流式结果也需要等到任务结束或按测量目标读完结果。
-可以通过本地 Unix socket 直接调用同一个服务，避免为每个控制命令额外创建 Python 进程：
+数据库驱动负责执行 SQL 并等待完成。DuckDB 自动化测试可复用现有的 `DuckDBSession` 与
+`measure_batch`，后者通过本地 Unix socket 调用服务，并处理启动回复丢失、会话校验和异常清理。
+下面假定 `duckdb_session` 已初始化为 `DuckDBSession`，每个 `sql` 是单条 SELECT：
 
 ```python
 import time
-from quarch_capture.recorder import DEFAULT_SOCKET, send_command
+from pathlib import Path
+import uuid
+from quarch_capture.commands import DEFAULT_SOCKET
+from tools.benchmark.tpch_energy import measure_batch
 
 
-def control(command, **kwargs):
-    response = send_command(DEFAULT_SOCKET, {"command": command, **kwargs})
-    if not response.get("ok"):
-        raise RuntimeError(response)
-    return response
-
-
+output = Path("results/sql_sessions")
+output.mkdir(parents=True, exist_ok=True)
 for index, sql in enumerate(sql_statements, 1):
-    control("start", label=f"sql_{index:03d}", channel="L2", save_csv=False)
-    try:
-        execute_and_wait(sql)
-    finally:
-        measurement = control("stop")["result"]
-        print(index, measurement["L2"]["energy_J"], "J")
+    result = measure_batch(
+        duckdb_session, sql, executions=1, socket_path=DEFAULT_SOCKET,
+        channel="L2", label=f"sql_{index:03d}", save_csv=False,
+        capture_path=output / f"sql_{index:03d}_{uuid.uuid4().hex}.json",
+    )
+    print(index, result["sql_mean_s"], "s", result["energy_mean_J"], "J")
     time.sleep(5)  # 仪器此时为 OFF，这 5 秒不计入任何一段
 ```
 
 服务的 `--socket` 参数允许指定其他本地 socket 路径；客户端命令需要传相同参数。
 默认 `~/.cache/quarch/recorder.sock` 的访问权限为当前用户独占，不提供网络监听。
 不要让其他采集脚本或 QPS 同时操作同一台仪器。
+
+完整 TPC-H 运行方式见 [耗时与能耗指南](tpch-energy.md)。自动测量要求 `status` 返回
+`protocol_version: 2`；升级代码后，在空闲时重启原有服务一次。
+自行实现客户端时，`start` 可附加 `request_id`（32 位十六进制标识）和 `start_deadline`
+（Unix 秒时间戳，最多提前 120 秒）；不确定是否启动成功时用相同字段发送 `cancel_start`。
+`stop` 可携带 `session_id`，服务端在同一把锁内先校验再停止；命令行也支持 `stop --session-id ...`。
+自动化客户端必须拒绝 `already_stopped: true` 的能耗，避免把提前终止的采集计入完整 SQL。
+写盘失败后结果的 `summary_saved` 为 `false`，服务保留结果，可在修复磁盘问题后重试 `stop`。
 
 ## 时间边界与测量含义
 

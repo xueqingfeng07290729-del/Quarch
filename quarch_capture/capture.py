@@ -42,8 +42,8 @@ def export_channel_csv(source, target, channel):
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] in ("serve", "start", "stop", "status", "shutdown"):
-        from .recorder import main as recorder_main
-        return recorder_main(sys.argv[1:])
+        from .commands import main as commands_main
+        return commands_main(sys.argv[1:])
     parser = argparse.ArgumentParser(prog="python -m quarch_capture", description=__doc__)
     parser.add_argument("--device", help="Exact USB::... or TCP::... target printed by discovery")
     parser.add_argument("--channel", type=str.upper, choices=("L1", "L2", "L3"),

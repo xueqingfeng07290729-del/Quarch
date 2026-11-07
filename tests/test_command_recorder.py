@@ -1,9 +1,11 @@
 import csv
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 import io
 import json
 import math
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -11,10 +13,12 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 
-from quarch_capture.recorder import (
-    CommandHandler, EnergySink, LocalServer, QisBackend, Recorder, main,
-    read_stream_block, selected_synthetic_functions, send_command,
+from quarch_capture.commands import CommandHandler, DEFAULT_SOCKET, LocalServer, main, send_command
+from quarch_capture.measurement import Recorder
+from quarch_capture.qis_backend import (
+    QisBackend, read_stream_block, selected_synthetic_functions,
 )
+from quarch_capture.stream_data import EnergySink
 
 
 HEADER = "Time uS,L1_PInst VA mVA,L2_PInst VA mVA,L3_PInst VA mVA,Tot_PInst VA mVA"
@@ -279,12 +283,45 @@ class LifecycleTests(unittest.TestCase):
 class CliTests(unittest.TestCase):
     def test_start_without_channel_fails_before_sending_command(self):
         stderr = io.StringIO()
-        with patch("quarch_capture.recorder.send_command") as send, redirect_stderr(stderr):
+        with patch("quarch_capture.commands.send_command") as send, redirect_stderr(stderr):
             with self.assertRaises(SystemExit) as raised:
                 main(["start", "--label", "sql_001", "--csv", "off"])
             self.assertEqual(raised.exception.code, 2)
             send.assert_not_called()
         self.assertIn("--channel", stderr.getvalue())
+
+    def test_start_sends_channel_label_and_csv_switch(self):
+        with patch("quarch_capture.commands.send_command", return_value={"ok": True}) as send, \
+                redirect_stdout(io.StringIO()):
+            self.assertEqual(main(["start", "--channel", "l2", "--label", "sql_001", "--csv", "off"]), 0)
+        send.assert_called_once_with(DEFAULT_SOCKET, {
+            "command": "start", "label": "sql_001", "channel": "L2", "save_csv": False,
+        }, 45)
+
+
+class CompatibilityTests(unittest.TestCase):
+    def test_existing_imports_use_the_split_implementations(self):
+        from quarch_capture import recorder
+        for name, implementation in {
+            "EnergySink": EnergySink, "QisBackend": QisBackend, "Recorder": Recorder,
+            "CommandHandler": CommandHandler, "LocalServer": LocalServer,
+            "main": main, "send_command": send_command,
+            "read_stream_block": read_stream_block,
+            "selected_synthetic_functions": selected_synthetic_functions,
+        }.items():
+            with self.subTest(name=name):
+                self.assertIs(getattr(recorder, name), implementation)
+        self.assertEqual(recorder.DEFAULT_SOCKET, DEFAULT_SOCKET)
+
+    def test_module_entry_points_still_require_channel_before_device_access(self):
+        root = Path(__file__).resolve().parents[1]
+        for module in ["quarch_capture", "quarch_capture.commands", "quarch_capture.recorder"]:
+            with self.subTest(module=module):
+                result = subprocess.run([sys.executable, "-m", module, "start", "--label", "sql_001"],
+                                        capture_output=True, text=True, timeout=5, cwd=root)
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertIn("--channel", result.stderr)
+                self.assertNotIn("RuntimeWarning", result.stderr)
 
 
 class BackendFailureTests(unittest.TestCase):
