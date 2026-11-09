@@ -1,0 +1,22 @@
+flowchart LR
+    subgraph HOST["Linux 主机：本次同时运行 DuckDB 与采集软件"]
+        SLOT["主板 M.2 插槽<br/>或兼容 PCIe–M.2 转接卡"]
+        SOFTWARE["DuckDB 查询<br/>Python / QuarchPy / QIS"]
+    end
+    FIXTURE["QTL2980-01 M.2 PAM 夹具<br/>Internal: QTL2621-04-006"]
+    SSD["被测 M.2 NVMe SSD"]
+    PAM["QTL2312 PAM 控制器"]
+    PSU["匹配的 12V DC 电源适配器"]
+
+    SLOT <-->|"PCIe / NVMe 数据"| FIXTURE
+    SLOT -->|"主机提供 SSD 电源"| FIXTURE
+    FIXTURE <-->|"PCIe / NVMe 数据"| SSD
+    FIXTURE -->|"经夹具测量的 3.3V 供电轨"| SSD
+    FIXTURE <-->|"Quarch 专用 USB-C 夹具线<br/>测量数据与控制"| PAM
+    PAM <-->|"USB-B ↔ 主机 USB 数据线"| SOFTWARE
+    PSU -->|"控制器独立供电"| PAM
+
+    classDef supply fill:#fff7ed,stroke:#b45309,color:#111827
+    classDef measurement fill:#eff6ff,stroke:#1d4ed8,color:#111827
+    class PSU supply
+    class FIXTURE,PAM measurement

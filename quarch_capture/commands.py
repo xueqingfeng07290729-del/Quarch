@@ -12,7 +12,8 @@ import stat
 import sys
 import threading
 
-from .common import CHANNELS, RUNTIME_DIR, device_lock, interval_seconds
+from .common import RUNTIME_DIR, device_lock, interval_seconds
+from .channels import channel_name
 from .measurement import Recorder
 from .qis_backend import QisBackend
 
@@ -48,6 +49,8 @@ class CommandHandler(socketserver.StreamRequestHandler):
                 payload = recorder.cancel_start(request.get("request_id"), request.get("start_deadline"))
             elif command == "status":
                 payload = recorder.status()
+            elif command == "recover":
+                payload = recorder.recover()
             elif command == "shutdown":
                 payload = recorder.request_shutdown(request.get("force", False))
                 shutdown = payload["shutdown"]
@@ -96,6 +99,8 @@ def serve(args):
         socket_inode = None
         try:
             backend.initialize()
+            if args.channel not in backend.available_channels:
+                raise ValueError(f"Channel {args.channel} is unavailable; choose from {', '.join(backend.available_channels)}")
             recorder = Recorder(backend, args.channel, interval_seconds(args.resample), args.output_dir, args.csv == "on")
             with LocalServer(str(path), CommandHandler) as server:
                 os.chmod(path, 0o600)
@@ -132,12 +137,12 @@ def main(argv=None):
     commands = parser.add_subparsers(dest="command", required=True)
     service = commands.add_parser("serve", help="Keep QIS connected, with recording OFF until start")
     service.add_argument("--device", required=True)
-    service.add_argument("--channel", type=str.upper, choices=CHANNELS, required=True)
+    service.add_argument("--channel", type=channel_name, required=True, help="Power channel from --inspect")
     service.add_argument("--resample", default="10ms", help="QIS output interval (default: 10ms / 100 Hz)")
     service.add_argument("--csv", choices=["on", "off"], default="off", help="Default CSV switch (default: off)")
     service.add_argument("--output-dir", type=Path, default=Path("results/sessions"))
     service.add_argument("--socket", type=Path, default=DEFAULT_SOCKET)
-    for command in ["start", "stop", "status", "shutdown"]:
+    for command in ["start", "stop", "status", "recover", "shutdown"]:
         sub = commands.add_parser(command)
         sub.add_argument("--socket", type=Path, default=DEFAULT_SOCKET)
         sub.add_argument("--timeout", type=float, default=45)
@@ -147,7 +152,7 @@ def main(argv=None):
             sub.add_argument("--force", action="store_true", help="Exit even if an energy summary could not be saved")
         if command == "start":
             sub.add_argument("--label", default="measurement")
-            sub.add_argument("--channel", type=str.upper, choices=CHANNELS, required=True,
+            sub.add_argument("--channel", type=channel_name, required=True,
                              help="Output for this measurement; must be specified for every start")
             sub.add_argument("--csv", choices=["on", "off"], default=None, help="Override the server CSV switch for this measurement")
     args = parser.parse_args(argv)

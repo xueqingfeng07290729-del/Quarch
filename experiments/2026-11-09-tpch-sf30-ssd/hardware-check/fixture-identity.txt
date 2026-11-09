@@ -1,0 +1,5 @@
+Name:        Gen5 Vertical M.2 PAM Fixture
+Part#:       QTL2980-01
+Serial#:     QTL2980-01-225
+FPGA 1:      QTL3415,1.1
+Internal#:   QTL2621-04-006

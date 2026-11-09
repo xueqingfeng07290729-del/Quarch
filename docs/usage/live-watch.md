@@ -1,5 +1,8 @@
 # 终端查看功率：Quarch watch
 
+当前 QTL2312 + M.2 夹具的设备、权限和启动命令见 [QTL2312 配置](../setup/qtl2312-m2.md)。
+该设备使用 `Quarch watch --channel 3.3V --10ms`；下文 `L1/L2/L3` 示例用于 QTL2843。
+
 ## 安装和启动
 
 先完成[安装](../setup/installation.md)，包括把 `bin/Quarch` 链接到 PATH。
@@ -51,8 +54,8 @@ Quarch watch --L2             # 默认也是 10ms，100 个采样点/秒
 Quarch watch --L1 --100ms     # 也可指定 L1 或 L3 及其他间隔
 ```
 
-`--L1`、`--L2`、`--L3` 必须且只能指定一个。间隔也可以写成 `--interval 10ms`。
-参数要求正整数 `ms` 或 `us`，最小 125us；极短间隔能否持续逐点输出，还受 QIS、主机和终端吞吐限制。
+必须指定一个通道，可使用 `--channel 3.3V`、`--channel Tot`，或交流设备的 `--L1`、`--L2`、`--L3` 简写。
+间隔也可以写成 `--interval 10ms`，要求正整数 `ms` 或 `us`。QTL2843 最小 125us，QTL2312 按夹具模拟采样率校验；极短间隔能否持续逐点输出，还受 QIS、主机和终端吞吐限制。
 
 标准输出为 CSV 格式，例如下面的数值仅用于展示格式：
 
@@ -76,6 +79,7 @@ Quarch status
 ```
 
 连接断开或输出管道关闭时，服务也会停止这次 watch。若其他测量已经运行，watch 会报错，不会中断它。
+USB 拔插使当前采集失败时，结果会保留为不完整。插回并完成 USB 枚举后，再执行原来的 `watch` 命令会自动恢复连接和夹具通道，开始新的测量。也可执行 `Quarch recover` 单独恢复；通常无需重启常驻服务。恢复不会覆盖断线那次的结果。
 watch 默认不保存原始采样 CSV；停止时仍沿用服务的能耗 JSON 汇总。需要文件时可自行重定向标准输出：
 
 ```bash
@@ -104,14 +108,14 @@ watch 复用已有的本地采集服务，通过 Unix socket 接收采样点。�
 采样数据的传送顺序为：
 
 ```text
-QTL2843 → USB → QIS → QisBackend → EnergySink
+PAM → USB → QIS → QisBackend → EnergySink
                                       ↓ 每个有效采样点
                                   有界队列
                                       ↓ Unix socket / JSON 行
                                 Quarch watch → 终端
 ```
 
-`EnergySink` 使用设备原始时间戳，把所选通道的 `PInst` 从 mVA 除以 1000 转为 W，
+`EnergySink` 使用设备原始时间戳，把所选通道的功率转为 W（交流 `PInst` 的 mVA 除以 1000，直流功率的 uW 除以 1,000,000），
 再把每个有效采样点放入队列；没有通过重复读取最后一个功率值生成输出。
 队列有容量限制，终端持续跟不上时会报错并停止测量，避免无限占用内存或悄悄丢点。
 

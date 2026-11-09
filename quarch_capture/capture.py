@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Discover an AC PAM or capture CSV through a headless local QIS server.
+"""Discover a QTL2312/QTL2843 PAM or capture CSV through headless QIS.
 
 API reference: Quarch AN-031 and the adjacent QuarchPy checkout.
 Run without --device to discover devices without starting a measurement.
-Captures require --channel L1, L2 or L3. This selects exported data and
-energy statistics; it does not switch the instrument's AC power outputs.
+Use --device USB::... --inspect to list the actual fixture power channels.
+Captures require --channel. Channel selection does not switch device power.
 Command-controlled mode: serve, start, stop, status and shutdown.
 """
 
@@ -13,26 +13,27 @@ import csv
 from contextlib import nullcontext, suppress
 from datetime import datetime
 import math
+import json
 import os
 from pathlib import Path
 import sys
 
-from .common import device_lock, termination_guard, write_json_atomic
+from .common import device_lock, interval_seconds, termination_guard, write_json_atomic
+from .channels import (available_power_channels, channel_name, fixture_analog_groups,
+                       instrument_model, power_column, selected_columns)
 
 
 def export_channel_csv(source, target, channel):
     """Export time and the selected output; retain the complete-channel source."""
-    if channel not in ("L1", "L2", "L3"):
-        raise ValueError("channel must be L1, L2 or L3")
+    channel = channel_name(channel)
     with Path(source).open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
         headers = reader.fieldnames or []
         time_columns = [c for c in headers if c.lower().startswith("time ")]
         if len(time_columns) != 1:
             raise ValueError("Expected one timestamp column")
-        columns = time_columns + [c for c in headers if c.startswith((channel + " ", channel + "_", channel + "V_"))]
-        if f"{channel}_PInst VA mVA" not in columns:
-            raise ValueError(f"The capture is missing output {channel}")
+        power_column(headers, channel)
+        columns = time_columns + [headers[i] for i in selected_columns(headers, channel)]
         with Path(target).open("x", newline="", encoding="utf-8") as result:
             writer = csv.DictWriter(result, fieldnames=columns)
             writer.writeheader()
@@ -46,13 +47,14 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] == "watch":
         from .watch import main as watch_main
         return watch_main(sys.argv[2:])
-    if len(sys.argv) > 1 and sys.argv[1] in ("serve", "start", "stop", "status", "shutdown"):
+    if len(sys.argv) > 1 and sys.argv[1] in ("serve", "start", "stop", "status", "recover", "shutdown"):
         from .commands import main as commands_main
         return commands_main(sys.argv[1:])
     parser = argparse.ArgumentParser(prog="python -m quarch_capture", description=__doc__)
     parser.add_argument("--device", help="Exact USB::... or TCP::... target printed by discovery")
-    parser.add_argument("--channel", type=str.upper, choices=("L1", "L2", "L3"),
-                        help="Output to export and measure; required with --device; does not switch AC outputs")
+    parser.add_argument("--channel", type=channel_name,
+                        help="Power channel to measure; use --inspect to list available channels")
+    parser.add_argument("--inspect", action="store_true", help="Read instrument/fixture identity and channels without recording")
     parser.add_argument("--ip", help="Known instrument IPv4 address for targeted discovery")
     parser.add_argument("--seconds", type=float, default=10, help="Capture duration (default: 10 seconds)")
     parser.add_argument("--resample", default="10ms", help="QIS software resampling interval (default: 10ms / 100 Hz)")
@@ -60,18 +62,21 @@ def main():
     args = parser.parse_args()
     if not math.isfinite(args.seconds) or args.seconds <= 0:
         parser.error("--seconds must be finite and positive")
-    if args.device and args.channel is None:
-        parser.error("--channel is required with --device; choose L1, L2 or L3")
+    if args.inspect and not args.device:
+        parser.error("--inspect requires --device")
+    if args.device and args.channel is None and not args.inspect:
+        parser.error("--channel is required with --device; use --inspect to list channels")
+    interval_seconds(args.resample)
 
     with device_lock(args.device) if args.device else nullcontext():
         return _capture(args, parser)
 
 
 def _capture(args, parser):
-    output = (args.output or Path(datetime.now().strftime(f"qtl2843_{args.channel}_%Y%m%d_%H%M%S.csv"))).resolve()
+    output = (args.output or Path(datetime.now().strftime(f"quarch_{args.channel}_%Y%m%d_%H%M%S.csv"))).resolve()
     all_channels = output.with_name(output.stem + ".all-channels.csv")
     energy_file = output.with_suffix(".energy.json")
-    if args.device:
+    if args.device and not args.inspect:
         for path in (output, all_channels, energy_file):
             if path.exists():
                 parser.error(f"Output already exists: {path}")
@@ -103,14 +108,22 @@ def _capture(args, parser):
             if not targets:
                 print("No devices found. Check DATA IN / USB, network addressing and USB permissions.")
                 return 2
-            print("Run again with --device '<one exact target above>' --channel L1|L2|L3 to capture.")
+            print("Run again with --device '<one exact target above>' --inspect to list fixture channels.")
             return 0
 
         device = quarchDevice(args.device, ConType="QIS", timeout="15", qis_instance=qis)
         identity = device.send_command("*IDN?")
         print("Instrument:\n", identity)
-        if "2843" not in identity:
-            raise RuntimeError("The instrument did not identify itself as QTL2843; capture was not started.")
+        model = instrument_model(identity)
+        if args.inspect:
+            power = quarchPPM(device, skipDefaultSyntheticChannels=True)
+            power.fixture_definition = device.send_command("fix:chan:xml?")
+            print(json.dumps({"device": args.device, "model": model,
+                              "fixture_identity": device.send_command("fix:identity?").strip(),
+                              "available_channels": available_power_channels(power.parse_synthetic_channels_from_instrument()),
+                              "analog_base_rates_Hz": fixture_analog_groups(power.fixture_definition) if model == "QTL2312" else {},
+                              "device_record_state": device.send_command("rec?").strip()}, ensure_ascii=False, indent=2))
+            return 0
         if device.send_command("rec?").strip().upper() != "OFF":
             raise RuntimeError("Instrument is already recording; its configuration was not changed")
 
@@ -119,13 +132,31 @@ def _capture(args, parser):
             if not reply.strip().upper().startswith("OK"):
                 raise RuntimeError(f"{command}: {reply}")
 
-        # AC RMS/power calculations need full-rate hardware samples.
-        configure("rec averaging 1")
+        power = quarchPPM(device, skipDefaultSyntheticChannels=True)
+        power.fixture_definition = device.send_command("fix:chan:xml?")
+        definitions = power.parse_synthetic_channels_from_instrument()
+        available = available_power_channels(definitions)
+        if args.channel not in available:
+            raise ValueError(f"Channel {args.channel} is unavailable; choose from {', '.join(available)}")
+        groups = fixture_analog_groups(power.fixture_definition) if model == "QTL2312" else {}
+        minimum = max(1 / rate for rate in groups.values()) if groups else .000125
+        if interval_seconds(args.resample) < minimum:
+            raise ValueError(f"{model} output interval must be at least {minimum * 1e6:g}us")
+        fixture_identity = device.send_command("fix:identity?").strip()
+        configure("stream created channels clear")
+        power.send_synthetic_channels(definitions)
         configure("rec:trigger:mode manual")
-        power = quarchPPM(device)  # Creates the default AC synthetic channels.
+        configure("rec:trigger:pre 0")
         reply = power.stream_resample_mode(args.resample)
         if "fail" in reply.lower() or "invalid" in reply.lower():
             raise RuntimeError(f"Software resampling failed: {reply}")
+        # QIS resample changes hardware averaging; restore full-rate analogs
+        # afterwards so instantaneous power is calculated before averaging.
+        if groups:
+            for group in groups:
+                configure(f"rec:averaging:group {group} 1")
+        else:
+            configure("rec averaging 1")
         # The caller owns this exclusive file handle, so existing data cannot be overwritten.
         with all_channels.open("x", encoding="utf-8", newline="") as handle:
             print(f"Selected output: {args.channel}; capturing {args.seconds:g} seconds")
@@ -159,6 +190,8 @@ def _capture(args, parser):
         from .energy import energy_from_csv
         energy = energy_from_csv(output, channel=args.channel, expected_duration_s=args.seconds)
         energy["all_channels_csv"] = str(all_channels)
+        energy.update(device=args.device, instrument_identity=identity, fixture_identity=fixture_identity,
+                      analog_base_rates_Hz=groups, hardware_averaging_samples=1)
         write_json_atomic(energy_file, energy)
         print(f"Output interval: {energy['interval_s'] * 1000:g} ms; covered duration: {energy['duration_s']:g} s")
         if not energy["requested_duration_matches"]:

@@ -1,0 +1,43 @@
+{
+  "validated_at": "2026-11-09T11:00:59.866311+00:00",
+  "complete_full_run_queries": 22,
+  "complete_full_run_captures": 66,
+  "complete_extra_q19_captures": 3,
+  "all_capture_integrity_checks_passed": true,
+  "all_cache_checks_passed": true,
+  "all_executions_read_storage": true,
+  "database_file_unchanged": true,
+  "recorder_state": "idle",
+  "recording": "OFF",
+  "channel": "3.3V",
+  "interval_s": 0.01,
+  "full_run": ".",
+  "q19_repeat": "../q19-cooldown",
+  "review_csv": "review.csv",
+  "observed_after_original_q19_temperatures_C": {
+    "Composite": 62.85,
+    "Sensor 1": 95.85,
+    "Sensor 2": 63.85,
+    "Sensor 3": 62.85
+  },
+  "q19_repeat_max_observed_temperatures_C": {
+    "Sensor 2": 66.85,
+    "Sensor 3": 38.85,
+    "Composite": 38.85,
+    "Sensor 1": 60.85
+  },
+  "temperature_note": "Original high-temperature reading was a single observation after Q19; the repeat has 2-second temperature samples. This supports a possible thermal explanation but does not prove throttling.",
+  "queries_with_energy_max_min_over_1_5": [
+    19,
+    20
+  ],
+  "tests": {
+    "passed": 109,
+    "skipped": 0
+  },
+  "source_sha256": {
+    "tools/benchmark/tpch_ssd_energy.py": "c79907bf5c9912cdf683a261d6482af333c1566b64c3f3943474cfb3c9f85c71",
+    "tools/benchmark/tpch_timing.py": "3df52968e4c2d6ce30d7dc97325aeb8caa5c54364638bdacf29e363df39b1654",
+    "tools/benchmark/tpch_energy.py": "f6ac6650b35727381e350f22d4c5691bd299b59c34d89ade6bc25de0b1e6f064"
+  }
+}

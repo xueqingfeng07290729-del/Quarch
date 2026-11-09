@@ -16,7 +16,11 @@ def command(socket_path, request):
 
 
 def require_idle(socket_path):
-    status = command(socket_path, {"command": "status"})
+    status = send_command(socket_path, {"command": "status"})
+    if status.get("recovery_available"):
+        status = command(socket_path, {"command": "recover"})
+    elif not status.get("ok"):
+        raise RuntimeError(f"Recorder status failed: {status}")
     if status.get("protocol_version", 0) < 2:
         raise RuntimeError("Recorder protocol 2 is required; restart quarch_capture serve to load the updated service")
     if status.get("state") != "idle" or status.get("reader_active") or status.get("device_record_state") != "OFF":

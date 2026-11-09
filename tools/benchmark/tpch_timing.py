@@ -4,6 +4,7 @@
 import argparse
 import csv
 from datetime import datetime, timezone
+from functools import lru_cache
 import hashlib
 import json
 import math
@@ -64,8 +65,28 @@ def timer_totals(lines):
     }
 
 
+@lru_cache(maxsize=8)
+def cli_capabilities(executable):
+    """Local/source CLI builds may lack -no-agent and timer precision options."""
+    help_result = subprocess.run([str(executable), "-help"], input="", capture_output=True,
+                                 text=True, timeout=10)
+    help_text = help_result.stdout + getattr(help_result, "stderr", "")
+    agent_flags = ("-no-agent",) if "-no-agent" in help_text else ()
+    probe = subprocess.run([str(executable), *agent_flags, "-no-init", "-batch", "-bail", ":memory:"],
+                           input=".timer on 9\n.timer off\n", capture_output=True, text=True, timeout=10)
+    timer = ".timer on 9" if getattr(probe, "returncode", 0) == 0 else ".timer on"
+    return agent_flags, timer
+
+
+def cli_version(executable):
+    flags, _ = cli_capabilities(executable)
+    return subprocess.run([str(executable), *flags, "-no-init", "-version"], capture_output=True,
+                          text=True, check=True, timeout=10).stdout.strip()
+
+
 def cli_args(executable, database):
-    args = [str(executable), "-no-agent", "-no-init", "-batch", "-bail"]
+    flags, _ = cli_capabilities(executable)
+    args = [str(executable), *flags, "-no-init", "-batch", "-bail"]
     if str(database) != ":memory:":
         args.append("-readonly")
     return args + [str(database)]
@@ -76,6 +97,7 @@ class DuckDBSession:
 
     def __init__(self, executable, database, timeout=300):
         self.timeout = timeout
+        self.timer_command = cli_capabilities(executable)[1]
         self.process = subprocess.Popen(cli_args(executable, database), stdin=subprocess.PIPE,
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                         text=True, bufsize=1)
@@ -147,7 +169,7 @@ class DuckDBSession:
         if not sql.endswith(";"):
             sql += ";"
         started = time.perf_counter_ns()
-        lines = self.exchange(".timer on 9\n" + sql + "\n.timer off")
+        lines = self.exchange(self.timer_command + "\n" + sql + "\n.timer off")
         wall = (time.perf_counter_ns() - started) / 1e9
         return {**timer_totals(lines), "driver_wall_s": wall}
 
@@ -332,7 +354,7 @@ def main(argv=None):
         parser.error("Provide distinct existing database files")
     output = (args.output_dir or Path("results/tpch") / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")).expanduser().resolve()
     output.mkdir(parents=True, exist_ok=False)
-    version = subprocess.run([executable, "-no-agent", "-version"], capture_output=True, text=True, check=True).stdout.strip()
+    version = cli_version(executable)
     queries = load_queries(executable, databases[0])
     query_dir = output / "queries"
     query_dir.mkdir()

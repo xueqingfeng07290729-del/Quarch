@@ -5,6 +5,8 @@ import math
 from pathlib import Path
 import threading
 
+from .channels import power_column, selected_columns
+
 
 class EnergySink:
     """Bounded-memory interval integration, with optional selected-channel CSV."""
@@ -35,14 +37,8 @@ class EnergySink:
             if unit not in units:
                 raise ValueError(f"Unsupported timestamp unit: {unit}")
             self.time_divisor = units[unit]
-            power_name = f"{self.channel}_PInst VA mVA"
-            if power_name not in headers:
-                raise ValueError(f"QIS did not provide the selected power channel: {power_name}")
-            self.power_index = headers.index(power_name)
-            self.selected_indices = [self.time_index] + [
-                i for i, c in enumerate(headers)
-                if c.startswith((self.channel + " ", self.channel + "_", self.channel + "V_"))
-            ]
+            self.power_index, self.power_scale = power_column(headers, self.channel)
+            self.selected_indices = [self.time_index] + selected_columns(headers, self.channel)
             self.headers = headers
             if self.writer:
                 self.writer.writerow([headers[i] for i in self.selected_indices])
@@ -62,7 +58,7 @@ class EnergySink:
                 if self.headers is None or len(row) != len(self.headers):
                     raise ValueError("Malformed QIS sample row")
                 timestamp = float(row[self.time_index])
-                power_w = float(row[self.power_index]) / 1000
+                power_w = float(row[self.power_index]) * self.power_scale
                 if not math.isfinite(timestamp) or not math.isfinite(power_w):
                     raise ValueError("Non-finite timestamp or selected-channel power")
                 if self.last_t is not None and not math.isclose(

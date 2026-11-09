@@ -13,6 +13,7 @@ import uuid
 
 from .client import DEFAULT_SOCKET, _cancel, _stop, require_idle
 from .common import CHANNELS, interval_seconds, termination_guard
+from .channels import channel_name
 
 
 def stream_watch(handler, request):
@@ -79,6 +80,7 @@ def parse_args(argv=None):
     channels = parser.add_mutually_exclusive_group(required=True)
     for channel in CHANNELS:
         channels.add_argument("--" + channel, dest="channel", action="store_const", const=channel)
+    channels.add_argument("--channel", type=channel_name, help="Power channel, e.g. 3.3V, VIO_1V8 or Tot")
     parser.add_argument("--interval", default="10ms", help="Output interval, e.g. 10ms, 100ms or 125us (default: 10ms)")
     parser.add_argument("--socket", type=Path, default=DEFAULT_SOCKET)
     expanded = []
@@ -88,7 +90,9 @@ def parse_args(argv=None):
     args = parser.parse_args(expanded)
     args.socket = args.socket.expanduser()
     try:
-        interval_seconds(args.interval)
+        period = interval_seconds(args.interval)
+        if args.channel in CHANNELS and period < .000125:
+            parser.error("QTL2843 output intervals must be at least 125us")
     except argparse.ArgumentTypeError as exc:
         parser.error(str(exc))
     return args

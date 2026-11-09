@@ -1,0 +1,410 @@
+{
+  "exit_code": 0,
+  "samples": [
+    {
+      "time": "2026-11-09T10:57:42.724150+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 33.85,
+        "Composite": 33.85,
+        "Sensor 1": 34.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:57:44.731945+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 32.85,
+        "Composite": 32.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:57:46.732536+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 34.85,
+        "Composite": 34.85,
+        "Sensor 1": 49.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:57:48.734035+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 35.85,
+        "Composite": 35.85,
+        "Sensor 1": 53.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:57:50.735421+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 57.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:57:52.738037+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 37.85,
+        "Composite": 37.85,
+        "Sensor 1": 58.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:57:54.749740+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 38.85,
+        "Composite": 38.85,
+        "Sensor 1": 59.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:57:56.761053+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 44.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:57:58.785696+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 44.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:00.803136+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 44.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:02.812065+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:04.823466+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:06.839373+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:08.856604+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:10.872658+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:12.888624+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:14.904759+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:16.920745+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:18.936667+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 34.85,
+        "Composite": 34.85,
+        "Sensor 1": 36.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:20.952775+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 34.85,
+        "Composite": 34.85,
+        "Sensor 1": 36.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:22.968795+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 34.85,
+        "Composite": 34.85,
+        "Sensor 1": 36.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:24.979425+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 34.85,
+        "Composite": 34.85,
+        "Sensor 1": 36.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:26.980010+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 51.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:28.981027+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 54.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:30.982056+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 37.85,
+        "Composite": 37.85,
+        "Sensor 1": 58.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:32.990098+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 38.85,
+        "Composite": 38.85,
+        "Sensor 1": 60.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:35.007273+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 38.85,
+        "Composite": 38.85,
+        "Sensor 1": 60.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:37.031662+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 37.85,
+        "Composite": 37.85,
+        "Sensor 1": 46.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:39.042848+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 37.85,
+        "Composite": 37.85,
+        "Sensor 1": 46.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:41.060420+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 37.85,
+        "Composite": 37.85,
+        "Sensor 1": 46.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:43.071541+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 40.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:45.089131+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 40.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:47.106822+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 40.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:49.124388+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:51.127357+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 39.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:53.137912+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 35.85,
+        "Composite": 35.85,
+        "Sensor 1": 37.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:55.140875+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 35.85,
+        "Composite": 35.85,
+        "Sensor 1": 37.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:57.158062+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 35.85,
+        "Composite": 35.85,
+        "Sensor 1": 37.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:58:59.174195+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 35.85,
+        "Composite": 35.85,
+        "Sensor 1": 37.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:59:01.190391+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 35.85,
+        "Composite": 35.85,
+        "Sensor 1": 37.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:59:03.193383+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 34.85,
+        "Composite": 34.85,
+        "Sensor 1": 36.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:59:05.194028+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 34.85,
+        "Composite": 34.85,
+        "Sensor 1": 36.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:59:07.194836+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 52.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:59:09.195397+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 36.85,
+        "Composite": 36.85,
+        "Sensor 1": 56.85
+      }
+    },
+    {
+      "time": "2026-11-09T10:59:11.197911+00:00",
+      "temperatures_C": {
+        "Sensor 2": 66.85,
+        "Sensor 3": 38.85,
+        "Composite": 38.85,
+        "Sensor 1": 59.85
+      }
+    }
+  ]
+}

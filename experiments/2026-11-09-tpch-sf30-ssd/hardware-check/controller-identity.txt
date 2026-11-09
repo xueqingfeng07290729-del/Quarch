@@ -1,0 +1,9 @@
+Family:     Power Analysis Modules
+Name:       Power Analysis Module
+Part#:      QTL2312-01
+Processor:  QTL2102-01,5.124
+Bootloader: QTL2102-01,5.124
+FPGA 1:     QTL2103,1.12
+Serial#:    QTL2098-02-583
+Enclosure#: QTL2312-01-578
+Fixture:    QTL2980-01 Gen5 Vertical M.2 PAM Fixture

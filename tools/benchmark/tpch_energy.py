@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure TPC-H batch timings and whole-computer energy through an idle Quarch recorder.
+"""Measure TPC-H batch timings and selected-channel energy through an idle Quarch recorder.
 
 Run from the repository root: python -m tools.benchmark.tpch_energy --help
 """
@@ -15,13 +15,13 @@ from pathlib import Path
 import re
 import shutil
 import statistics
-import subprocess
 import sys
 import time
 
 from quarch_capture.client import DEFAULT_SOCKET, capture_window, require_idle
 from quarch_capture.common import atomic_output, termination_guard
-from tools.benchmark.tpch_timing import DuckDBSession, ResourceObserver, finalize_benchmark, load_queries, query_ids, save_json
+from quarch_capture.channels import channel_name
+from tools.benchmark.tpch_timing import DuckDBSession, ResourceObserver, cli_version, finalize_benchmark, load_queries, query_ids, save_json
 
 
 BATCH_FIELDS = [
@@ -122,7 +122,7 @@ def write_summary(output, rows):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--database", type=Path, required=True)
-    parser.add_argument("--channel", choices=["L1", "L2", "L3"], required=True)
+    parser.add_argument("--channel", type=channel_name, required=True)
     parser.add_argument("--socket", type=Path, default=DEFAULT_SOCKET)
     parser.add_argument("--duckdb", default=shutil.which("duckdb") or str(Path.home() / ".local/bin/duckdb"))
     parser.add_argument("--queries", type=query_ids, default=query_ids("1-22"))
@@ -165,13 +165,13 @@ def main(argv=None):
         "status": "running", "started_at": datetime.now(timezone.utc).isoformat(),
         "database": str(database), "database_bytes": original.st_size, "database_mtime_ns": original.st_mtime_ns,
         "readonly": True, "duckdb_executable": executable,
-        "duckdb_version": subprocess.run([executable, "-no-agent", "-version"], capture_output=True, text=True, check=True).stdout.strip(),
+        "duckdb_version": cli_version(executable),
         "query_sha256": hashlib.sha256(json.dumps(queries, sort_keys=True).encode()).hexdigest(),
         "queries": args.queries, "channel": args.channel, "threads": args.threads, "memory_limit": args.memory_limit,
         "runs": args.runs, "warmup": args.warmup, "batch_target_s": args.batch_seconds,
         "max_executions": args.max_executions, "sleep_s": args.sleep, "query_timeout_s": args.timeout,
         "raw_csv_enabled": args.csv == "on", "recorder_socket": str(args.socket), "initial_recorder_status": initial_status,
-        "energy_scope": "Whole-computer selected-output energy over the full device recording window, divided by SQL execution count. Includes baseline, QIS/Python and command-boundary overhead; no idle baseline is subtracted.",
+        "energy_scope": "Selected fixture-channel energy over the full recording window, divided by SQL execution count. The wiring/channel determine the boundary (e.g. SSD rail or whole-computer AC input). Includes baseline and command-boundary overhead; no idle baseline is subtracted.",
         "timing_scope": "DuckDB CLI SQL timer total divided by execution count; includes SQL planning and execution. Persistent readonly connection, trash output mode.",
         "workload_note": "Consecutive repeated SQL in each batch; pilots outside recording, 5s default OFF pauses between batches. OS page cache is not cleared. This differs from isolated single-query timings.",
         "summary_note": "Median of batch means; batch energy and duration are retained. Three batches are repeatability checks, not a meter-accuracy estimate.",

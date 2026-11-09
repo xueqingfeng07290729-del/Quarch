@@ -1,4 +1,4 @@
-"""Energy integration for the AC CSV exported by python -m quarch_capture.
+"""Energy integration for the AC/DC CSV exported by python -m quarch_capture.
 
 This is a local Python helper, not a Quarch vendor API. Each QIS-resampled
 pInstantaneous value is a mean over an output interval, so energy is the
@@ -12,15 +12,14 @@ import json
 import math
 from pathlib import Path
 
-from .common import CHANNELS, write_json_atomic
+from .common import write_json_atomic
+from .channels import channel_name
 from .stream_data import EnergySink
 
 
 def energy_from_csv(csv_path, *, channel, expected_duration_s=None):
     """Infer the period from two rows, then integrate in bounded memory."""
-    channel = channel.upper()
-    if channel not in CHANNELS:
-        raise ValueError("channel must be L1, L2 or L3")
+    channel = channel_name(channel)
     csv_path = Path(csv_path)
     with csv_path.open(encoding="utf-8-sig") as handle:
         header = handle.readline().rstrip("\r\n")
@@ -51,7 +50,7 @@ def energy_from_csv(csv_path, *, channel, expected_duration_s=None):
         source_csv=str(csv_path.resolve()), output_rate_Hz=1 / period,
         start_time_s=result.pop("sample_start_s"), end_time_exclusive_s=result.pop("sample_end_exclusive_s"),
         method="Sum of QIS interval-mean instantaneous power multiplied by each interval duration",
-        power_source="PInst computed from full-rate voltage/current before QIS output resampling",
+        power_source="QIS power channel; full-rate V/I is enforced by this project's capture backend",
         negative_power_policy="Preserved; reported energy is net energy",
     )
     if expected_duration_s is not None:
@@ -63,7 +62,7 @@ def energy_from_csv(csv_path, *, channel, expected_duration_s=None):
 def main():
     parser = argparse.ArgumentParser(prog="python -m quarch_capture.energy", description=__doc__)
     parser.add_argument("csv", type=Path)
-    parser.add_argument("--channel", type=str.upper, choices=CHANNELS, required=True,
+    parser.add_argument("--channel", type=channel_name, required=True,
                         help="Output whose power is integrated (required)")
     parser.add_argument("--seconds", type=float, help="Expected recording duration for a completeness check")
     args = parser.parse_args()

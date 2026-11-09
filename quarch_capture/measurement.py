@@ -11,6 +11,7 @@ import time
 import uuid
 
 from .common import CHANNELS, interval_seconds, utc_now, write_json_atomic
+from .channels import channel_name
 from .stream_data import EnergySink
 
 
@@ -44,15 +45,25 @@ class Recorder:
                 self._validate_request(request_id, start_deadline)
                 if start_deadline <= time.time() or request_id in self.cancelled_starts:
                     raise RuntimeError("Start request expired or was cancelled")
-            if self.closing or self.fault:
-                raise RuntimeError(self.fault or "Recorder is shutting down")
+            if self.closing:
+                raise RuntimeError("Recorder is shutting down")
             if self.persistence_error:
                 raise RuntimeError("Previous summary is not saved; retry stop before starting another measurement")
             if self.session is not None:
                 raise RuntimeError("A measurement is already active; stop it first")
-            if not isinstance(channel, str) or channel.upper() not in CHANNELS:
-                raise ValueError("channel is required for every start; choose L1, L2 or L3")
-            channel = channel.upper()
+            # Detect unplug/replug even if no status request observed the gap.
+            self.backend.record_state()
+            if getattr(self.backend, "reconnect_needed", False):
+                self.recover()
+            if self.fault:
+                raise RuntimeError(self.fault)
+            available = getattr(self.backend, "available_channels", CHANNELS)
+            try:
+                channel = channel_name(channel)
+            except ValueError as exc:
+                raise ValueError(f"channel is required for every start; choose from {', '.join(available)}") from exc
+            if channel not in available:
+                raise ValueError(f"A valid channel is required for every start; {channel} is unavailable; choose from {', '.join(available)}")
             if not isinstance(label, str) or not re.fullmatch(r"[\w.-]{1,80}", label) or label in [".", ".."]:
                 raise ValueError("label must contain 1-80 letters, digits, underscores, dots or hyphens")
             if save_csv is not None and not isinstance(save_csv, bool):
@@ -91,6 +102,25 @@ class Recorder:
                 self.stop(session_id=session["session_id"])
                 raise RuntimeError("Start request expired while starting; stop was requested")
             return {"state": "recording", **{k: v for k, v in session.items() if k not in ["sink", "record_start_ack_monotonic"]}}
+
+    def recover(self):
+        """Recover connectivity between sessions, preserving failed-run evidence."""
+        with self.lock:
+            if self.closing or self.session is not None or self.backend.reader_active:
+                raise RuntimeError("Recovery requires no active session or reader")
+            if self.persistence_error:
+                raise RuntimeError("Previous summary is not saved; retry stop before recovering")
+            self.backend.record_state()
+            if not getattr(self.backend, "reconnect_needed", False):
+                if self.fault:
+                    raise RuntimeError(self.fault)
+                return self.status()
+            interval, batch = self.output_override or (self.backend.resample, self.backend.read_batch_interval_s)
+            self.backend.reconnect(interval)
+            self.backend.read_batch_interval_s = batch
+            self.output_override = None
+            self.fault = None
+            return {"reconnected": True, **self.status()}
 
     def _restore_output(self):
         if self.output_override is not None:
@@ -194,6 +224,9 @@ class Recorder:
             if self.session is None and (device_state.upper() != "OFF" or reader_active):
                 state = "error"
             error = getattr(self.backend, "error", None)
+            reconnect_needed = getattr(self.backend, "reconnect_needed", False)
+            if reconnect_needed:
+                state = "error"
             if error and self.session:
                 state = "error"
             result = {
@@ -205,7 +238,15 @@ class Recorder:
                 "reader_active": reader_active,
                 "protocol_version": 2,
                 "live_watch": True,
+                "reconnect_required": reconnect_needed,
+                "recovery_available": bool(reconnect_needed and not self.session and not reader_active
+                                           and not self.closing and not self.persistence_error),
+                "available_channels": list(getattr(self.backend, "available_channels", CHANNELS)),
             }
+            if getattr(self.backend, "model", None):
+                result.update(device=self.backend.target, instrument_identity=self.backend.identity,
+                              fixture_identity=self.backend.fixture_identity,
+                              analog_base_rates_Hz=self.backend.analog_groups)
             if self.session:
                 result["active_session"] = {
                     "session_id": self.session["session_id"], "label": self.session["label"],

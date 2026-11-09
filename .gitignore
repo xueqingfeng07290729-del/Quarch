@@ -5,7 +5,7 @@
 __pycache__/
 *.py[cod]
 
-# Measurement files are managed separately from setup documentation.
+# Local measurement output stays ignored; curated experiments/ archives are tracked.
 /*.csv
 /*.energy.json
 /measure_analysis/
@@ -17,3 +17,7 @@ __pycache__/
 .env
 .env.*
 *.log
+
+# Database payloads are supplied locally, not published with experiment summaries.
+*.duckdb
+*.duckdb.wal

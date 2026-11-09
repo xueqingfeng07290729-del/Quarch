@@ -6,7 +6,7 @@ import tempfile
 import time
 import unittest
 
-from tools.benchmark.tpch_timing import DuckDBSession, query_ids, summarize, timer_totals
+from tools.benchmark.tpch_timing import DuckDBSession, cli_capabilities, query_ids, summarize, timer_totals
 
 
 class TimingHelpersTests(unittest.TestCase):
@@ -80,7 +80,9 @@ class NativeCliTests(unittest.TestCase):
             second = session.run("SELECT 42")
             self.assertEqual(first["statement_count"], 1)
             self.assertEqual(second["statement_count"], 1)
-            self.assertGreaterEqual(first["driver_wall_s"], first["elapsed_s"])
+            # Source builds round their default SQL timer to milliseconds.
+            rounding = .0005 if session.timer_command == ".timer on" else .0000000005
+            self.assertGreaterEqual(first["driver_wall_s"] + rounding, first["elapsed_s"])
             with self.assertRaisesRegex(RuntimeError, "does_not_exist"):
                 session.run("SELECT * FROM does_not_exist")
         finally:
@@ -89,7 +91,7 @@ class NativeCliTests(unittest.TestCase):
     def test_database_is_opened_readonly(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "test.duckdb"
-            subprocess.run([DUCKDB, "-no-agent", "-no-init", str(path), "CREATE TABLE t AS SELECT 1 AS x"],
+            subprocess.run([DUCKDB, *cli_capabilities(DUCKDB)[0], "-no-init", str(path), "CREATE TABLE t AS SELECT 1 AS x"],
                            capture_output=True, check=True)
             before = path.stat().st_mtime_ns
             session = DuckDBSession(DUCKDB, path, timeout=3)

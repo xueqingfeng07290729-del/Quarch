@@ -1,0 +1,247 @@
+{
+  "status": "complete",
+  "started_at": "2026-11-09T10:57:43.743192+00:00",
+  "database": "/home/xueqing/experiment_dbs/duckdb/tpch_sf30_uncompressed.duckdb",
+  "database_bytes": 37330104320,
+  "database_mtime_ns": 1794218501997311123,
+  "readonly": true,
+  "database_info": {
+    "tables": [
+      {
+        "table_name": "customer",
+        "row_count": 4500000
+      },
+      {
+        "table_name": "lineitem",
+        "row_count": 179998372
+      },
+      {
+        "table_name": "nation",
+        "row_count": 25
+      },
+      {
+        "table_name": "orders",
+        "row_count": 45000000
+      },
+      {
+        "table_name": "part",
+        "row_count": 6000000
+      },
+      {
+        "table_name": "partsupp",
+        "row_count": 24000000
+      },
+      {
+        "table_name": "region",
+        "row_count": 5
+      },
+      {
+        "table_name": "supplier",
+        "row_count": 300000
+      }
+    ],
+    "storage_compression": [
+      {
+        "table_name": "customer",
+        "compression": "Constant",
+        "segment_values": "36000000"
+      },
+      {
+        "table_name": "customer",
+        "compression": "Uncompressed",
+        "segment_values": "36000000"
+      },
+      {
+        "table_name": "lineitem",
+        "compression": "Constant",
+        "segment_values": "2879973952"
+      },
+      {
+        "table_name": "lineitem",
+        "compression": "Uncompressed",
+        "segment_values": "2879973952"
+      },
+      {
+        "table_name": "nation",
+        "compression": "Constant",
+        "segment_values": "100"
+      },
+      {
+        "table_name": "nation",
+        "compression": "Uncompressed",
+        "segment_values": "100"
+      },
+      {
+        "table_name": "orders",
+        "compression": "Constant",
+        "segment_values": "450000000"
+      },
+      {
+        "table_name": "orders",
+        "compression": "Uncompressed",
+        "segment_values": "360000000"
+      },
+      {
+        "table_name": "part",
+        "compression": "Constant",
+        "segment_values": "54000000"
+      },
+      {
+        "table_name": "part",
+        "compression": "Uncompressed",
+        "segment_values": "54000000"
+      },
+      {
+        "table_name": "partsupp",
+        "compression": "Constant",
+        "segment_values": "120000000"
+      },
+      {
+        "table_name": "partsupp",
+        "compression": "Uncompressed",
+        "segment_values": "120000000"
+      },
+      {
+        "table_name": "region",
+        "compression": "Constant",
+        "segment_values": "15"
+      },
+      {
+        "table_name": "region",
+        "compression": "Uncompressed",
+        "segment_values": "15"
+      },
+      {
+        "table_name": "supplier",
+        "compression": "Constant",
+        "segment_values": "2100000"
+      },
+      {
+        "table_name": "supplier",
+        "compression": "Uncompressed",
+        "segment_values": "2100000"
+      }
+    ]
+  },
+  "duckdb_executable": "/home/xueqing/experiment_dbs/duckdb/duckdb-v1.5.5/build/release/duckdb",
+  "duckdb_version": "v1.5.5 (Variegata) d8cdaa3",
+  "sql_timer_command": ".timer on",
+  "queries": [
+    19
+  ],
+  "runs_per_query": 3,
+  "executions_per_capture": 1,
+  "query_sha256": "74deb83cae864c997c0e04787a274f1444a998e65b54c9a9adddf5575d85bc31",
+  "channel": "3.3V",
+  "interval_s": 0.01,
+  "initial_recorder_status": {
+    "ok": true,
+    "state": "idle",
+    "pid": 9498,
+    "configured_channel": "3.3V",
+    "start_channel_required": true,
+    "default_csv_enabled": false,
+    "interval_s": 0.01,
+    "device_record_state": "OFF",
+    "reader_active": false,
+    "protocol_version": 2,
+    "live_watch": true,
+    "reconnect_required": false,
+    "recovery_available": false,
+    "available_channels": [
+      "3.3V",
+      "VIO_1V8",
+      "Tot"
+    ],
+    "device": "USB::QTL2312-01-578",
+    "instrument_identity": "Family:     Power Analysis Modules\r\nName:       Power Analysis Module\r\nPart#:      QTL2312-01\r\nProcessor:  QTL2102-01,5.124\r\nBootloader: QTL2102-01,5.124\r\nFPGA 1:     QTL2103,1.12\r\nSerial#:    QTL2098-02-583\r\nEnclosure#: QTL2312-01-578\r\nFixture:    QTL2980-01 Gen5 Vertical M.2 PAM Fixture",
+    "fixture_identity": "Name:        Gen5 Vertical M.2 PAM Fixture\r\nPart#:       QTL2980-01\r\nSerial#:     QTL2980-01-225\r\nFPGA 1:      QTL3415,1.1\r\nInternal#:   QTL2621-04-006",
+    "analog_base_rates_Hz": {
+      "0": 250000
+    }
+  },
+  "cache_policy": "cold",
+  "threads": 8,
+  "memory_limit": "8GB",
+  "spill_limit": "8GB",
+  "sleep_s": 30.0,
+  "timeout_s": 600,
+  "raw_csv_enabled": false,
+  "available_memory_kib_at_start": 15035656,
+  "mount": {
+    "filesystems": [
+      {
+        "target": "/",
+        "source": "/dev/mapper/ubuntu--vg-ubuntu--lv",
+        "fstype": "ext4",
+        "options": "rw,relatime"
+      }
+    ]
+  },
+  "block_devices": {
+    "blockdevices": [
+      {
+        "name": "nvme0n1",
+        "type": "disk",
+        "size": "953.9G",
+        "model": "KINGSTON OM8TAP41024K1-A00",
+        "serial": "50026B7687944572",
+        "mountpoints": [
+          null
+        ],
+        "children": [
+          {
+            "name": "nvme0n1p1",
+            "type": "part",
+            "size": "1G",
+            "model": null,
+            "serial": null,
+            "mountpoints": [
+              "/boot/efi"
+            ]
+          },
+          {
+            "name": "nvme0n1p2",
+            "type": "part",
+            "size": "2G",
+            "model": null,
+            "serial": null,
+            "mountpoints": [
+              "/boot"
+            ]
+          },
+          {
+            "name": "nvme0n1p3",
+            "type": "part",
+            "size": "950.8G",
+            "model": null,
+            "serial": null,
+            "mountpoints": [
+              null
+            ],
+            "children": [
+              {
+                "name": "ubuntu--vg-ubuntu--lv",
+                "type": "lvm",
+                "size": "950.8G",
+                "model": null,
+                "serial": null,
+                "mountpoints": [
+                  "/"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "cache_scope": "Fresh DuckDB process for each run, no pilot queries. Cold mode uses file-specific POSIX_FADV_DONTNEED after engine setup and verifies OS residency <=0.1% with mincore; no global cache drop. SSD controller caches are not reset. Keep mode retains OS page cache without guaranteeing warm data.",
+  "energy_scope": "Measured selected SSD rail energy over the recording window; includes idle baseline, command boundary overhead, other activity on that SSD and any DuckDB spill. No baseline subtraction. It is not whole-machine energy or isolated NAND energy.",
+  "io_scope": "DuckDB /proc/PID/io deltas around capture: read_bytes/write_bytes are storage-accounted I/O, rchar/wchar include cached I/O. Device/controller caching remains possible.",
+  "raw_csv_note": "Raw CSV defaults off to avoid extra writes to the measured SSD. Enabling it can affect the measured power.",
+  "finished_at": "2026-11-09T10:59:12.777467+00:00",
+  "completed_runs": 3,
+  "completed_queries": 1,
+  "database_file_unchanged": true
+}

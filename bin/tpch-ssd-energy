@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""Run the SF30 SSD energy benchmark using this checkout's environment."""
+import os
+from pathlib import Path
+import sys
+
+root = Path(__file__).resolve().parents[1]
+environment = root / ".venv"
+if Path(sys.prefix) != environment:
+    python = environment / "bin/python"
+    if not python.exists():
+        raise SystemExit("Project .venv is missing; follow docs/setup/installation.md")
+    os.execv(str(python), [str(python), str(Path(__file__).resolve()), *sys.argv[1:]])
+sys.path.insert(0, str(root))
+from tools.benchmark.tpch_ssd_energy import cli
+
+raise SystemExit(cli())

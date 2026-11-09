@@ -1,16 +1,32 @@
-"""QTL2843 communication, stream configuration and buffered reading through QIS."""
+"""PAM communication, fixture channels and buffered reading through QIS."""
 
 from contextlib import suppress
 from pathlib import Path
-import re
 import socket
 import threading
 import time
 
-from .common import CHANNELS, utc_now
+from .common import interval_seconds, utc_now
+from .channels import (available_power_channels, fixture_analog_groups, instrument_model,
+                       selected_synthetic_functions)
 
 
 READ_BATCH_INTERVAL_S = .1
+
+
+def bounded_qis(interface):
+    """Use socket timeouts instead of the vendor's repeated 10-second waits."""
+    for name in ("sock", "streamSock"):
+        getattr(interface, name).settimeout(5)
+
+    def receive(sock):
+        data = sock.recv(interface.maxRxBytes)
+        if not data:
+            raise ConnectionError("QIS connection closed while awaiting a response")
+        return data
+
+    interface.rx_bytes = receive
+    return interface
 
 
 def usb_connection_key(target, root=Path("/sys/bus/usb/devices")):
@@ -33,28 +49,6 @@ def usb_connection_key(target, root=Path("/sys/bus/usb/devices")):
     return None
 
 
-def selected_synthetic_functions(definitions, channel, include_details):
-    """Keep the chosen output's vendor functions, in dependency order."""
-    if channel not in CHANNELS:
-        raise ValueError("channel must be L1, L2 or L3")
-    functions = []
-    power_found = False
-    for definition in definitions:
-        function = definition.function
-        destination = re.match(r"\s*chan\(\s*([^,\s]+)\s*,\s*([^\s)]+)\s*\)", function)
-        if destination is None:
-            continue
-        name, group = destination.groups()
-        is_power = name == channel + "_PInst" and group == "VA"
-        is_selected = name.startswith((channel + "_", channel + "V_"))
-        if is_power or (include_details and is_selected):
-            functions.append(function)
-            power_found |= is_power
-    if not power_found:
-        raise ValueError(f"Instrument fixture has no instantaneous-power definition for {channel}")
-    return functions
-
-
 def read_stream_block(reader, device):
     """Read a bounded QIS text block and expose EOF so callers can batch safely.
 
@@ -62,6 +56,8 @@ def read_stream_block(reader, device):
     Full blocks must be drained immediately rather than delayed between reads.
     """
     text = reader.send_command("stream text all", device=device).rstrip("\r\n")
+    if "invalid or no longer valid" in text.lower() or text.lstrip().upper().startswith("FAIL"):
+        raise ConnectionError(f"Instrument stream disconnected: {text}")
     at_buffer_end = text.endswith("eof")
     if at_buffer_end:
         text = text[:-3]
@@ -91,43 +87,182 @@ class QisBackend:
         self.stop_requested = threading.Event()
         self.read_batch_interval_s = READ_BATCH_INTERVAL_S
         self.active_profile = self.configured_connection = None
+        self.model = None
+        self.analog_groups = {}
+        self.minimum_interval_s = .000125
+        self.attached_connection = None
+        self.connection_lost = False
+        self.qis_endpoint = ("127.0.0.1", 9722)
 
     def initialize(self):
         self.active_profile = self.configured_connection = None
-        from quarchpy.device import quarchDevice, quarchPPM
+        from quarchpy.device import quarchDevice
         from quarchpy.qis import isQisRunning, startLocalQis
         self.owns_qis = not isQisRunning()
         try:
             self.qis = startLocalQis(headless=True)
             if self.qis is None:
                 raise RuntimeError("Could not start headless QIS")
+            bounded_qis(self.qis)
+            self.qis_endpoint = (self.qis.host, self.qis.port)
             self.version = self.qis.send_command("$version")
             self.qis.qis_scan_devices()
             self.device = quarchDevice(self.target, ConType="QIS", timeout="15", qis_instance=self.qis)
             self.identity = self.device.send_command("*IDN?")
-            if "2843" not in self.identity:
-                raise RuntimeError("Selected device is not a QTL2843")
+            self.model = instrument_model(self.identity)
             if self.record_state().upper() != "OFF":
                 raise RuntimeError("Instrument is already recording; existing recording was not stopped")
-            # Create functions per measurement, rather than computing all three
-            # outputs' RMS/frequency/power channels for every energy-only run.
-            self.power = quarchPPM(self.device, skipDefaultSyntheticChannels=True)
-            self.power.fixture_definition = self.device.send_command("fix:chan:xml?")
-            self.synthetic_definitions = self.power.parse_synthetic_channels_from_instrument()
+            self._load_fixture()
             self.set_resample(self.resample)
+            self.attached_connection = usb_connection_key(self.target)
+            self.connection_lost = False
         except Exception:
             self.close()
             raise
 
+    def _load_fixture(self):
+        from quarchpy.device import quarchPPM
+        self.power = quarchPPM(self.device, skipDefaultSyntheticChannels=True)
+        self.power.fixture_definition = self.device.send_command("fix:chan:xml?")
+        self.synthetic_definitions = self.power.parse_synthetic_channels_from_instrument()
+        self.available_channels = available_power_channels(self.synthetic_definitions)
+        self.fixture_identity = self.device.send_command("fix:identity?").strip()
+        self.analog_groups = {}
+        self.minimum_interval_s = .000125
+        if self.model == "QTL2312":
+            self.analog_groups = fixture_analog_groups(self.power.fixture_definition)
+            self.minimum_interval_s = max(1 / rate for rate in self.analog_groups.values())
+
+    @property
+    def reconnect_needed(self):
+        changed = (self.attached_connection is not None
+                   and usb_connection_key(self.target) != self.attached_connection)
+        return self.connection_lost or changed
+
+    def reconnect(self, resample):
+        """Reopen this device after a disconnect; never resume a partial stream."""
+        from quarchpy.connection_specific.connection_QIS import QisInterface
+        from quarchpy.device import quarchDevice
+        if self.reader_active:
+            raise RuntimeError("Cannot reconnect while the previous reader is still active")
+        self.connection_lost = True
+        self.active_profile = self.configured_connection = None
+        connection = usb_connection_key(self.target)
+        if self.target.upper().startswith("USB:") and connection is None:
+            raise ConnectionError(f"{self.target} is disconnected; reconnect USB and retry")
+        host, port = (self.qis.host, self.qis.port) if self.qis else self.qis_endpoint
+        self.qis_endpoint = (host, port)
+        self._close_interface(self.reader)
+        self.reader = None
+        self._close_interface(self.qis)
+        self.device = None
+        try:
+            try:
+                self.qis = QisInterface(host=host, port=port, connectionMessage=False)
+            except ConnectionRefusedError:
+                if not self.owns_qis:
+                    raise
+                from quarchpy.qis import startLocalQis
+                self.qis = startLocalQis(headless=True, host=host, port=port)
+                if self.qis is None:
+                    raise ConnectionError("Could not restart the recorder's QIS server")
+            bounded_qis(self.qis)
+            found = self.qis.qis_scan_devices()
+            if (not found and self.owns_qis and self.target.upper().startswith("USB:")
+                    and usb_connection_key(self.target) is not None):
+                # The USB scanner can retain an empty list after a disconnect.
+                # An owned QIS with no devices has no other device streams to stop.
+                self._restart_qis()
+            self.device = quarchDevice(self.target, ConType="QIS", timeout="5", qis_instance=self.qis)
+            self.identity = self.device.send_command("*IDN?")
+            self.model = instrument_model(self.identity)
+            state = self.record_state().upper()
+            if state == "ON" and self.started_by_us:
+                # Only finish the orphaned recording owned by this backend.
+                self._command("rec stop")
+                state = self.record_state().upper()
+            if state != "OFF":
+                raise RuntimeError(f"Reconnect requires recording OFF; unowned recordings are not stopped: {state}")
+            self.started_by_us = False
+            self._refresh_stream_support()
+            self._load_fixture()
+            self.set_resample(resample)
+            if connection != usb_connection_key(self.target):
+                raise ConnectionError("USB changed again during reconnection; retry after the connection is stable")
+            self.attached_connection = connection
+            self.error = None
+            self.connection_lost = False
+        except Exception as exc:
+            self.error = f"Reconnect failed: {exc}"
+            raise
+
+    def _refresh_stream_support(self):
+        """Discard QIS's non-streaming device cache after an interrupted probe."""
+        details = self.qis.send_command("$list details")
+        lines = [line for line in details.splitlines() if ")" in line]
+        target_lines = [line for line in lines if line.split(")", 1)[1].strip().split()[0].casefold()
+                        == self.target.casefold()]
+        if not any("stream:no" in line.casefold() for line in target_lines):
+            return
+        # QIS has no documented command to rebuild this cached device type.
+        # Restart only our local server, with this sole device confirmed idle.
+        if not self.owns_qis or len(lines) != 1 or self.record_state().upper() != "OFF":
+            raise RuntimeError("QIS cached this PAM as non-streaming; restart its QIS server when all devices are idle")
+        from quarchpy.device import quarchDevice
+        self._restart_qis()
+        self.device = quarchDevice(self.target, ConType="QIS", timeout="5", qis_instance=self.qis)
+        self.identity = self.device.send_command("*IDN?")
+        self.model = instrument_model(self.identity)
+        if self.record_state().upper() != "OFF":
+            raise RuntimeError("Instrument is not idle after restarting QIS")
+
+    def _restart_qis(self):
+        """Restart only after callers establish ownership and no other streams."""
+        from quarchpy.qis import startLocalQis
+        host, port = self.qis.host, self.qis.port
+        with suppress(ConnectionError):  # QIS may close TCP before replying.
+            self.qis.send_command("$shutdown")
+        self._close_interface(self.qis)
+        deadline = time.monotonic() + 5
+        while True:
+            try:
+                with socket.create_connection((host, port), timeout=.2):
+                    pass
+            except OSError:
+                break
+            if time.monotonic() >= deadline:
+                raise TimeoutError("QIS did not shut down; retry recovery after it exits")
+            time.sleep(.1)
+        self.qis = startLocalQis(headless=True, host=host, port=port)
+        if self.qis is None:
+            raise ConnectionError("Could not restart QIS after USB reconnection")
+        bounded_qis(self.qis)
+        self.version = self.qis.send_command("$version")
+        self.qis.qis_scan_devices()
+
     def _command(self, command):
-        response = self.device.send_command(command)
-        if not response.strip().upper().startswith("OK"):
-            raise RuntimeError(f"{command}: {response}")
+        for attempt in range(6):
+            response = self.device.send_command(command)
+            if response.strip().upper().startswith("OK"):
+                return
+            # Immediately after USB/QIS recovery, resample can return before
+            # the firmware's averaging state transition has settled. Retry
+            # only this idempotent setting, while recording is still OFF.
+            if (attempt < 5 and command.startswith("rec:averaging:group ")
+                    and "FAIL: 0x41" in response and self.record_state().upper() == "OFF"):
+                time.sleep(.05)
+                continue
+            break
+        raise RuntimeError(f"{command}: {response}")
 
     def record_state(self):
-        state = self.device.send_command("rec?").strip() if self.device else "DISCONNECTED"
+        try:
+            state = self.device.send_command("rec?").strip() if self.device else "DISCONNECTED"
+        except Exception as exc:
+            state = f"DISCONNECTED: {exc}"
         if state.upper() not in ("OFF", "ON"):
             self.active_profile = self.configured_connection = None
+            self.connection_lost = True
         return state
 
     @property
@@ -137,9 +272,16 @@ class QisBackend:
     def set_resample(self, resample):
         if self.reader_active or self.record_state().upper() != "OFF":
             raise RuntimeError("Cannot change output interval while recording")
+        if interval_seconds(resample) < self.minimum_interval_s:
+            raise ValueError(f"{self.model or 'QTL2843'} output interval must be at least {self.minimum_interval_s * 1e6:g}us")
         response = self.power.stream_resample_mode(resample)
         if "fail" in response.lower() or "invalid" in response.lower():
             raise RuntimeError(response)
+        # QIS resampling automatically chooses hardware averaging on DC PAMs.
+        # Override it AFTER setting resample: calculate V*I at the analog base
+        # rate, then average power in QIS, rather than multiplying averaged V/I.
+        for group in self.analog_groups:
+            self._command(f"rec:averaging:group {group} 1")
         self.resample = resample
 
     def configure_channels(self, channel, include_details):
@@ -174,7 +316,7 @@ class QisBackend:
             self.set_resample(self.resample)
             self.configured_connection = connection
         profile["configuration_restored"] = restore
-        self.reader = QisInterface(host=self.qis.host, port=self.qis.port, connectionMessage=False)
+        self.reader = bounded_qis(QisInterface(host=self.qis.host, port=self.qis.port, connectionMessage=False))
         self.error = None
         self.stop_requested.clear()
         ready = threading.Event()
@@ -189,6 +331,10 @@ class QisBackend:
             self.reader = None
             raise
         started = {"record_start_ack_at": utc_now(), "record_start_ack_monotonic": time.monotonic(), **profile}
+        if self.model:
+            started.update(device=self.target, instrument_identity=self.identity,
+                           fixture_identity=self.fixture_identity, analog_base_rates_Hz=self.analog_groups,
+                           hardware_averaging_samples=1)
         reader = self.reader
 
         def consume():
@@ -226,6 +372,8 @@ class QisBackend:
                             self.stop_requested.wait(self.read_batch_interval_s)
             except Exception as exc:
                 self.error = str(exc)
+                if isinstance(exc, (ConnectionError, OSError)) or self.reconnect_needed:
+                    self.connection_lost = True
                 self.active_profile = self.configured_connection = None
                 if not self.stop_requested.is_set():
                     with suppress(Exception):

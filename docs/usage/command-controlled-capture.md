@@ -1,7 +1,20 @@
 # 用开始／结束命令分别测量多条 SQL
 
-适用于当前 **QuarchPy + headless QIS + USB + QTL2843** 的接线。无需启动 QPS。
-本机被测电脑接在 **OUTPUT L2**；测量时选择 `--channel L2`。
+本流程适用于 QTL2312 直流 SSD 测量及 QTL2843 交流测量，均使用 QuarchPy + headless QIS，无需启动 QPS。
+当前 SSD 设备的简要命令如下；各终端均先进入仓库根目录：
+
+```bash
+# 终端 1；已有服务则跳过
+./bin/Quarch serve --device USB::QTL2312-01-578 --channel 3.3V --resample 10ms --csv off
+# 终端 2；on/off 可逐段选择，均保存能耗 JSON
+./bin/Quarch start --channel 3.3V --label ssd_sql --csv on
+# 执行 SQL 并等待完成
+./bin/Quarch stop
+```
+
+QTL2312 的连接、1 ms 输出和 USB 恢复见[SSD 设备指南](../setup/qtl2312-m2.md)。
+**下文 L2 命令、JSON、CPU 开销和 8 kHz 规格均保留自 QTL2843 历史实验**，该实验测的是 OUTPUT L2 上的整机交流输入。
+用于 SSD 时替换设备和通道，测量范围随实际电源轨变化。
 
 Python 代码统一放在 `quarch_capture/` 包中。日常命令使用 `python -m quarch_capture`，
 替代原来的 `python qtl2843_capture.py`；离线积分使用 `python -m quarch_capture.energy`，
@@ -67,7 +80,8 @@ sleep 5
 .venv/bin/python -m quarch_capture shutdown
 ```
 
-**每次 `start` 都必须显式传入 `--channel L1`、`--channel L2` 或 `--channel L3`，不可省略。**
+**每次 `start` 都必须显式传入有效的 `--channel`，不可省略。**
+QTL2843 可选 `L1/L2/L3`；当前 QTL2980 夹具可选 `3.3V`、`VIO_1V8`、`Tot`。
 即使 `serve` 已指定通道，开始每段测量时仍需再次指定；Python／socket 调用也必须传入 `channel`。
 缺失或无效通道会报错，不会开始采集。通道选择决定统计和 CSV 的内容，不会切换实物电源线路。
 每次只允许一段活动测量；重复 `start` 会报错，重复 `stop` 返回上一段结果而不重复计量。

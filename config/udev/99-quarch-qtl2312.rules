@@ -1,0 +1,2 @@
+# Allow xueqing to control this QTL2312 over USB, including after reconnection.
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="16d0", ATTR{idProduct}=="0449", ATTR{serial}=="QTL2312-01-578", OWNER="xueqing", MODE="0660"

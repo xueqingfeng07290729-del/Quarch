@@ -1,0 +1,2 @@
+query_id,runs,sql_median_s,sql_mean_s,energy_median_J,energy_mean_J,energy_total_J,mean_power_W,read_mean_MiB,write_mean_MiB,max_rss_MiB,max_spill_MiB,recorded_duration_mean_s,boundary_extra_mean_s
+19,3,7.801,7.812666666666667,20.823221370000002,20.918656343333335,62.75596903,2.65802494832698,10642.221354166666,0.0,7819.171875,0.0,7.87,0.057333333333333236

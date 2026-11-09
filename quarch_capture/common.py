@@ -13,8 +13,10 @@ import signal
 import tempfile
 import threading
 
+from .channels import AC_CHANNELS
 
-CHANNELS = ("L1", "L2", "L3")
+
+CHANNELS = AC_CHANNELS  # Legacy short options; PAM channels are discovered dynamically.
 RUNTIME_DIR = Path.home() / ".cache/quarch"
 
 
@@ -28,8 +30,8 @@ def interval_seconds(value):
         raise argparse.ArgumentTypeError("Use a positive integer interval such as 125us or 10ms")
     amount, unit = match.groups()
     result = int(amount) / (1_000_000 if unit == "us" else 1000)
-    if result < .000125:
-        raise argparse.ArgumentTypeError("QTL2843 output intervals must be at least 125us")
+    if result < .000004:
+        raise argparse.ArgumentTypeError("Output intervals must be at least 4us; the device may impose a higher minimum")
     return result
 
 

@@ -26,8 +26,9 @@ class FinalizationTests(unittest.TestCase):
             args = ["--database", str(database), "--channel", "L2", "--queries", "1",
                     "--runs", "1", "--warmup", "1", "--sleep", "0", "--output-dir", str(output)]
             with patch.object(tpch_energy, "require_idle", return_value={"protocol_version": 2}), \
+                    patch.object(tpch_energy.shutil, "which", return_value="/fake/duckdb"), \
                     patch.object(tpch_energy, "load_queries", return_value={1: "SELECT 1;"}), \
-                    patch.object(tpch_energy.subprocess, "run", return_value=SimpleNamespace(stdout="fake version")), \
+                    patch.object(tpch_energy, "cli_version", return_value="fake version"), \
                     patch.object(tpch_energy, "DuckDBSession", return_value=session), \
                     patch.object(tpch_energy, "ResourceObserver", return_value=observer), \
                     patch.object(tpch_energy, "measure_batch", side_effect=ValueError("original SQL failure")), \

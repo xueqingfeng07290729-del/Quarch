@@ -90,7 +90,7 @@ class EnergyBatchTests(unittest.TestCase):
     def test_repeated_sql_is_fully_executed_and_each_timer_is_present(self):
         session = DuckDBSession(shutil.which("duckdb"), ":memory:", timeout=3)
         try:
-            result = session.run("\n".join(["SELECT sum(i) FROM range(10000) t(i);"] * 7))
+            result = session.run("\n".join(["SELECT sum(i) FROM range(1000000) t(i);"] * 7))
             self.assertEqual(result["statement_count"], 7)
             self.assertGreater(result["elapsed_s"], 0)
         finally:

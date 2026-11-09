@@ -1,0 +1,1018 @@
+{
+  "schema_version": 1,
+  "experiment": "2026-11-09-tpch-sf30-ssd",
+  "full_run_captures": 66,
+  "q19_repeat_captures": 3,
+  "excluded": [
+    "database files",
+    "vendor runtimes/source and Python environment",
+    "spill directories",
+    "unrelated sessions",
+    "debug logs and software USB port-toggle experiments"
+  ],
+  "path_policy": "CSV capture_json is relative to its CSV directory; published JSON summary/source CSV paths are relative to that JSON directory. Database, executable, mount, socket and device names in run.json describe the original measurement environment and are not bundled files.",
+  "measurement_policy": "Numerical measurements, identifiers and timing data retained; unrelated initial last_result removed. Original-source and published hashes record serialization/path transformations.",
+  "files": [
+    {
+      "path": "full-run/captures/q01_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q01_r01.json",
+      "source_sha256": "064028d68830f67b38fe68733c246470662907b11c7fe35972318b554fc0a72c",
+      "published_sha256": "b5a972795e4a9478dbaa5f20e309699211e4a0f47a59e00d89d6d889d9a2ab70",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q01_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q01_r02.json",
+      "source_sha256": "b9fef791240f91d3d62076289c4909e72d3600a52ccef84b388bb744d918cf7a",
+      "published_sha256": "04b41fd7c1f1e9c8ef94d41bc64b7e9f5863ce797779d216bea7c3e87d75e306",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q01_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q01_r03.json",
+      "source_sha256": "47a4df173fd514b8262c221db5754502f528074a3cedecb391bb68df1335e868",
+      "published_sha256": "b0fdd0abb6d62a7af863d5d00b4d4875966db9d31c87f3a71233232bb3adda72",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q02_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q02_r01.json",
+      "source_sha256": "4eb8ba12ed91cf1e9526effb092ea8ef76d3c1446bc16ef1e1dbb6403e7829b8",
+      "published_sha256": "b43cfc74c844cf0c0924c3ad6fba6c555e471a357d2fd78a62b86bd6738fb683",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q02_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q02_r02.json",
+      "source_sha256": "0509d11542deaffe10b17072cf380667007b86de6cc9bafd6d5b771296373e6b",
+      "published_sha256": "c5d40a65c99b932cabcf37f7038da3590d1c07c2ffc1c3acec829b0e14c3dc62",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q02_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q02_r03.json",
+      "source_sha256": "ee14aebeb67aa2a49e4c7dbd32c779881b7fcf6dd4be24017392910e76c429dc",
+      "published_sha256": "64de65be17c122b31229003a09f8c79a0b56296db2fbe3915e49b797306cac2d",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q03_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q03_r01.json",
+      "source_sha256": "0ce1f1d53a415f57d132c127fd222061d3b5cf6bd327ec37dd244aca05c316d3",
+      "published_sha256": "d56ee6ef005abdf23afab48c3141585ec8577fa5c442550789fe1d8521c04d5e",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q03_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q03_r02.json",
+      "source_sha256": "8eb8ed015f6a1896005feb2135c9b21382f36d20dbbcbbc75ccd669cdca52133",
+      "published_sha256": "66ebfcaee93fc05b55075523dc0810942e6a78da93ce52402585608f008de7df",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q03_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q03_r03.json",
+      "source_sha256": "5c599b03cf01fce6d0edd6b52c684d4b4e3b13656e8d5ddc4d32f46cade88137",
+      "published_sha256": "47a50a5bc94e7e918fe761e43191f915678e6145b55304ebf34d66ab88360c0b",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q04_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q04_r01.json",
+      "source_sha256": "56eb79fd82423577087ba4c771045fd9f458ba8bbd78b5a4bc26dcab86c99f37",
+      "published_sha256": "3c793bb77f283e3e46b2be30a44325b15d6c61b6b96118e5f2e02f5b5bbbb458",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q04_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q04_r02.json",
+      "source_sha256": "e5723c70a75b0c5150c7ff913dffd2ac5aa9729e33ebe87b17f3a81f169a2145",
+      "published_sha256": "419f33516ab17b6c081988db95cfceb64dc5fde9bb3b9e05002f78a66970a06c",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q04_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q04_r03.json",
+      "source_sha256": "aa477ba2d18a2915c8613dd73435bdcce2994e46fa555ee8e80bbb4ca127a0ad",
+      "published_sha256": "a079e8450aa7cee1a1bbb98adca1504063a9439d86648b1a1545eb1e0161d078",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q05_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q05_r01.json",
+      "source_sha256": "41f09bfb9637a9ae1dd887e5c92ee255abec23a5ca75c45978fbbf2c558f4e47",
+      "published_sha256": "b7d745517730ee78385f8ff42e2c67466dc4d362cb71a24c948b84b088c5794b",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q05_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q05_r02.json",
+      "source_sha256": "db9bdc45319e47daedb13d686ff12c22798458493b23c178b473b49ca841aa6d",
+      "published_sha256": "aaa2309d390ddbe3f5cc5ffaf2a4d1a4689620fdfd79c3b2ba9db89646411182",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q05_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q05_r03.json",
+      "source_sha256": "62ffc1234b8eec365df23805eacba58665a46f82eae7e7e240ec3efe3ac31991",
+      "published_sha256": "ed6c7a3b06a95e169e1ed4f5b54a9019ddee93d790f8b18861903b27ab7b1f68",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q06_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q06_r01.json",
+      "source_sha256": "15a6b6c7a11c9694fff5179a3783e1be9aa327d0d80ba4e2c3911f4f02931ca7",
+      "published_sha256": "9ee991d412a98403866f4feaad0b7b8584f7444cae20de06979d767629752654",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q06_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q06_r02.json",
+      "source_sha256": "0c3a7da7dba095360e6358d5b3c90e87358a33cf2f2e778f6b8670709bf31bfa",
+      "published_sha256": "b8f035b695193e7f5a406ade11e5d3090a0f90846fd357f2d93252d4d009561b",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q06_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q06_r03.json",
+      "source_sha256": "f86a50e2e9aeaba3eb1d9415f396734875a6c725567bd53c79a3f9b78842d042",
+      "published_sha256": "82515b131f231c161a7b77e1a229e4aec46a15ae2ea98b8c80a2ddf0ad0caa76",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q07_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q07_r01.json",
+      "source_sha256": "aa0273f8cbc4da7639c9bea2e4bd097f57550e55f4bfec895c093c04e1117287",
+      "published_sha256": "5cc752589caaaac69093d292b28067d7b2b40d3aef5f7a5d7d868f4c168ca269",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q07_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q07_r02.json",
+      "source_sha256": "d2218e8186b4e3b4f451213c4d1c11b310cb8f0e98898846c2c65ac422d4706d",
+      "published_sha256": "87c73d50cb48b6f1ab9101fbd1c26fd6673d317db5525fcaf56b682046f6d2c7",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q07_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q07_r03.json",
+      "source_sha256": "a4e73e9a3652c0d72128344241f70ecc930a7bd2753bbee6146684578c4165cc",
+      "published_sha256": "45442f51ea3a1214ec4aaf11a846b8f1825b88c95d1ab647af415d2dab0fcb69",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q08_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q08_r01.json",
+      "source_sha256": "dae21e5e92a91e53ad2356fea2de3d5b6402e8e80ab17bd426f0e4b4ee7f3feb",
+      "published_sha256": "e108bb15e198dd6715439c3940afa4d8f03c900a3479284337e08ded6b1e9590",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q08_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q08_r02.json",
+      "source_sha256": "16b1c1258ac43644de3b0da4cc774abe42522a14e30109f7430531817962e234",
+      "published_sha256": "aec3ecf7dd931d8f43edb84cfc69865e6101873d1ccc53af3cb87a832e7b0b18",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q08_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q08_r03.json",
+      "source_sha256": "8986566a1012a2fa18922c4750d0743ddf63405a06ec053e1ab1425bf52f6762",
+      "published_sha256": "2475f004780a7ec5fcbfd86a4937d206271fdf9ef01512b0ef33b80447e6e867",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q09_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q09_r01.json",
+      "source_sha256": "74e73fe15e891069ac4adc969e3b8ba6f8f140e07ce02b89188bd8cb283effae",
+      "published_sha256": "e7c36d32065267b6e8f6dcba35caa1e7ad709d85fa60440720528f1a746decdd",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q09_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q09_r02.json",
+      "source_sha256": "407c5813fc82d1fe0ba7bd4a9e4f18455289a89c8bf815e91cc75d60f1e4cf9c",
+      "published_sha256": "1aade1540c8a3ab3022371833d3adc2003670e20a534ad650caf9da0c9cfebac",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q09_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q09_r03.json",
+      "source_sha256": "e3dce306b0998aaeb30f6bc2948721dd1df71d02c671013b06af2d9b06512abd",
+      "published_sha256": "4eaed4e4bf90ce2b0b950dddc6aec6f05a6b27ec22804f17b0c1f064b9dbe661",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q10_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q10_r01.json",
+      "source_sha256": "c977be3ff0d457da64f94089f0615dbfe823fc1b50689a761e113c32c6c78688",
+      "published_sha256": "4108598638069b4bf405b06613744565c7df7cd3b158e45a50e626d8e99dfcc7",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q10_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q10_r02.json",
+      "source_sha256": "bcd5830ae88f54c0fc86b3aca2245520348e8c4dc502a8ffab3df356f5b8af14",
+      "published_sha256": "bf65b933a2a5b0a1005ece8f6fbeb5d59d0a292522043d789628f6202432f73d",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q10_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q10_r03.json",
+      "source_sha256": "3a7f7b14438f89f057b15b18f42065c4479374294bcc7ac1a1c217d554863b31",
+      "published_sha256": "8ef62b2dd9a254c043b32cf55ed4e9e40913cb280002956db65cb19cb76d05dc",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q11_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q11_r01.json",
+      "source_sha256": "78689d4ebb4209419623c89de8a054661f009e643de6e0841b559f5247db67b7",
+      "published_sha256": "f309f7cfdab9aa871a565dd13d1eb1801a77961e8a0ef5836d5537afb20b46af",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q11_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q11_r02.json",
+      "source_sha256": "c7fcd9bc747686fb8d2e30448c3a773c12a5319b42ded57ad5978d3494e8cb2c",
+      "published_sha256": "e8e13593c870d1e952e7b20454472b3f01fde415ac7d6a34d14b6cffcfc14e07",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q11_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q11_r03.json",
+      "source_sha256": "7f4c36bc7f456a50688e6d40edefcdbdd60ca1a7c6054213ac12cff84d94e8c5",
+      "published_sha256": "71d0be2c2d3bcb55e597d17a0b4e9a31e84b88bd88a2a94d9a4c18e0104b90a4",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q12_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q12_r01.json",
+      "source_sha256": "660421e0cd9d40f85cc25feb8ba75fe265b29b3cf47d25d13883efd60e519f8b",
+      "published_sha256": "f091791438f0fd28480d0a6f95b8c56808fa0f3bdfd06eeed85a9889287bbe57",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q12_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q12_r02.json",
+      "source_sha256": "19054a6688be9547df634fc8189719f70f02de4cce98c4790207275cee868b97",
+      "published_sha256": "96ce629cde143fef8f213cefae7d6d0b20259f139005bc9ca99bb2a9b6706432",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q12_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q12_r03.json",
+      "source_sha256": "d4e8efde8eaafa6a96ec5f35cb05c79e2c1925de00d3c36374eb64ba00f0ab50",
+      "published_sha256": "c07101caf453f22a80bdbf91031568a83f2d67e492482d7bddb302272b5fd2a1",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q13_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q13_r01.json",
+      "source_sha256": "0600847fbc9911f0143dee1a66e01c85cdfd8e2077412f1c5ae5fa6b86ff6df8",
+      "published_sha256": "cd166b52d424eaae9f4ad4dc5fec36f6420b640bf77ce26571a4e7244bfc13d3",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q13_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q13_r02.json",
+      "source_sha256": "9ce42173cef5b738c253107149c6266b6f2d7b01757d9a12dc7e2503fe564704",
+      "published_sha256": "7383448969629f1fe294c05a6bb38c65bc0a64ea9f38b0a84c57b1f7d5b2b771",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q13_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q13_r03.json",
+      "source_sha256": "d91fcecbac767c917cf0ec20fbec64c0e88d97c396609f6ed670b6512467acbb",
+      "published_sha256": "47c198ed8ef1af33304ed24bb5d01344d56b2328d32f63fd31999a25f9a22e3d",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q14_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q14_r01.json",
+      "source_sha256": "a117b3a11a1348b2187156620aff77873aebcdfbfe30a815511157f677f03f8d",
+      "published_sha256": "221fcd7ef49550a7e366bc7faed2cc84f8c67670c75bfd6d7ec9212e91143870",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q14_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q14_r02.json",
+      "source_sha256": "daf11fb1d1c2deafcdc1620b9ecfcb37d1892116f706145e8b507926e5ae96b8",
+      "published_sha256": "2956253cfb0eabe35cd3e5c290083e97096f7c75cb1de06a556e0b971bf8b82c",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q14_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q14_r03.json",
+      "source_sha256": "fb09c8c8c24e8e6716108ae3aee64a9e01a4c5f10a299c448e5edbd180df17a1",
+      "published_sha256": "3bedb1cbe4b081652f98fd9106c4bf713ae2f8c8c6ff932a0ade191b010ee040",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q15_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q15_r01.json",
+      "source_sha256": "8fb9d5c5106f13c8a95c27241582d1e78b7dee495a3eda0daccf53c9ce544836",
+      "published_sha256": "8d9c397c4159e545b1107ea35f2e922d54a3d5301d938dc0ca5bc7169062eea0",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q15_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q15_r02.json",
+      "source_sha256": "8f7a0b6c90e7657d639d1a677335693f7b8259232deb04dee7600e46644e4589",
+      "published_sha256": "96b1bf4728a95bd45a923da6cb316f28e53a56e1d50c69703438592b33c99a64",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q15_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q15_r03.json",
+      "source_sha256": "e923c09682e378a03ddc802ac97f5c65a7afc10b637693f212189f6651501bb6",
+      "published_sha256": "2e4bf2beee04968120626949efd8812d1542b324c1741f21e5768f6efea6c55d",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q16_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q16_r01.json",
+      "source_sha256": "6185190ac33eae58cad192b29c02f64261bacd3c46a0188a1cb20af8a602b932",
+      "published_sha256": "fafc6fb961ef546f96a7171606cfe0deedfb01e2ec739a1653a89f71d5846604",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q16_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q16_r02.json",
+      "source_sha256": "d409210da1a8714bf947af6ee623d57075abae3e3c99edc4d04170e2dc7c2962",
+      "published_sha256": "197536e92fc8bfbe8b3ced5ccabdb44a53bc34994d3f32586058efb04d692883",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q16_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q16_r03.json",
+      "source_sha256": "98d63f82494541fc6cd7e0c9b5036701da981ada150714516e2a68a268936cb4",
+      "published_sha256": "69eb85354272a4f1e6c9a99cf05cc7895a0d4b32bc69d82c3bc51b57761978ad",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q17_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q17_r01.json",
+      "source_sha256": "aaacb9d6150e838c953409e5b8f5e90853bdc56bf9be383a64dd5606437fd99f",
+      "published_sha256": "df09cb9365503e94666328b87b39d542c2ba7bb81694f779d9d6ea7799c41d2c",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q17_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q17_r02.json",
+      "source_sha256": "8e0edf64a23c29641a69817297f36d1daa2bfdd2ab0753e5fad0469f6cfbbd05",
+      "published_sha256": "a061be374a55c14240879f99de5146a9f65f1ea648593254278d1ef4e4302a7a",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q17_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q17_r03.json",
+      "source_sha256": "c1bbef0571240bbf83d7f96bceb2273b9063d3b2567f0226d10278ca3d9a8732",
+      "published_sha256": "265a39a7ec5cd7cc4c9dea8147e6e97dfda70d28b25a8aa794a0227b0ceb8fc2",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q18_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q18_r01.json",
+      "source_sha256": "900848aa1cfc73853527a409c5a2d98ca6fe9d59c1f2865fd33da5765fba6e1c",
+      "published_sha256": "029d4154d0d6d8e9f91c07afeae793e3a0604042c435cc4f43ff13a235fda6b4",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q18_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q18_r02.json",
+      "source_sha256": "754d0c9521c15b2c077ba5e84ea00743d4d07e8ca2b3d96edad5e5bce2ed6636",
+      "published_sha256": "c5fdeedd6555c9b3d94f41f1a1266e53b9f1e8920f07874d20930495163abe75",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q18_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q18_r03.json",
+      "source_sha256": "8a04aaada3b4a0cedfc7f1d0b27e4acdf6c8b4856c5f8a537a5ded6f5916c14e",
+      "published_sha256": "cc3b7ac7d81534370ee98c7cfde6ea9afd5413b56c4599756a1c15c7b27dcbd1",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q19_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q19_r01.json",
+      "source_sha256": "dacbc1e60fad98279ce2c0f391a975bb14040d388356769eefb1e6b964a44f7d",
+      "published_sha256": "413cd93705c4a29b13e4d0abcbeb20110f62fca3b42c1e6a2fcf58839120d607",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q19_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q19_r02.json",
+      "source_sha256": "91316de3f267b8753ff531fa72fe080ca1e69cb87b473a7e4c7c79b8d77d3c29",
+      "published_sha256": "d447a75b2efe88c9f1c78fc03fba3ce87bef5371821bda23b657d9dcfdc1f6f4",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q19_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q19_r03.json",
+      "source_sha256": "a1f7abccc585b40cb2fafe9ded3e704f78a591ea016c28c2b1946b8acde95eb8",
+      "published_sha256": "bc74d25900a00263278b2413a18891cff70ea66ec71e18d993243a02117ca484",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q20_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q20_r01.json",
+      "source_sha256": "c9c8b36a9a6e89981e1cd2df1e8e27111a66076479b2986b02d37330ae04d05d",
+      "published_sha256": "3bcd3ad09f3d24af83fc08db73231480a5534fb56e48eec13df9d98504bb066a",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q20_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q20_r02.json",
+      "source_sha256": "356e23dc577d70db5bfd63c74a0e140ffe8312155cefaf8615af58f029766ac1",
+      "published_sha256": "fe57ced875bc70ec99976596c890ff0eeddd33dd80cb0e14ba1e02b195e81669",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q20_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q20_r03.json",
+      "source_sha256": "bf914dacf85453e207ba5bda059735ddedfe8b412a98eb309a38e003ca352d21",
+      "published_sha256": "96c35dfd325764cea4b609ca42dba5a05b24f95d7fbf9be997777d7175da49e1",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q21_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q21_r01.json",
+      "source_sha256": "303b9f1e7bf65c2ec1120cff36c0044af770f7ad0224b50d1ee5c2608bc1c8a4",
+      "published_sha256": "0a96616caec66b37dc33156b89eac2746c27c2a0fbb2c3417d8cec77e1bbfbb6",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q21_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q21_r02.json",
+      "source_sha256": "b1212363db9516c6d18c41d7e3aa592a4cc3f3b09b4a83a537bbac2f8516cb75",
+      "published_sha256": "6cd51ff94f4901729b389da33bb505b1b6419e5e845eaace4e1d574dec24674d",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q21_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q21_r03.json",
+      "source_sha256": "dd941c5980202344990caa27293cc7eb4760dc349de83c0464f623d510d3d5a1",
+      "published_sha256": "02fb403369ca33d62eaeb61f5701d3cd7290e93fbd7451cb9cd9f5feff3f09a9",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q22_r01.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q22_r01.json",
+      "source_sha256": "daed2bd13406ed42756016087675c219bfbba4c28a14e9eaeb4e393843bd204c",
+      "published_sha256": "7f9cb1b9b57158bfd6ee7fcab79a776f8bc8427b3a474d0fef855ff0e719feb4",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q22_r02.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q22_r02.json",
+      "source_sha256": "edcb6b3ef91f847c6cc634d335d62e241128ff8683062b790ba8931f7f7e335a",
+      "published_sha256": "57a9fea4786b9bb7c918fc9f5acef3af2739043befe52bbeb118bcdad7d67a97",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/captures/q22_r03.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/captures/q22_r03.json",
+      "source_sha256": "d5a8081a4ba3c9b9432fa2932b5fdf46fd170a3ff62c8f5e02b3ca16dfcf7a65",
+      "published_sha256": "80e2358d1edbf2a0bec8ac56d91b6f49582cc5dbe949d188f3fb981f095ea4a2",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/queries/q01.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q01.sql",
+      "source_sha256": "8aefe77a1c97459bc69acbbcdaf3b8637d8ea22dfc3ac7be732d4446da83b69b",
+      "published_sha256": "8aefe77a1c97459bc69acbbcdaf3b8637d8ea22dfc3ac7be732d4446da83b69b",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q02.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q02.sql",
+      "source_sha256": "a2219893f952dd2a2586ab297d909ec2d440faabb5e692f24880158aa6877344",
+      "published_sha256": "a2219893f952dd2a2586ab297d909ec2d440faabb5e692f24880158aa6877344",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q03.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q03.sql",
+      "source_sha256": "1f120d790d4914652cbf3fbc0fa28ed6573e4adee61ae7164a8c3d99b7c6b7fe",
+      "published_sha256": "1f120d790d4914652cbf3fbc0fa28ed6573e4adee61ae7164a8c3d99b7c6b7fe",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q04.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q04.sql",
+      "source_sha256": "2a2be89752fc917bc71e1a59168ead9d00d40c40ea0bbe646206e414b372f888",
+      "published_sha256": "2a2be89752fc917bc71e1a59168ead9d00d40c40ea0bbe646206e414b372f888",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q05.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q05.sql",
+      "source_sha256": "495def7debb02ab1def31da07fbc88b4796813b754832ce15d54a35dcb104577",
+      "published_sha256": "495def7debb02ab1def31da07fbc88b4796813b754832ce15d54a35dcb104577",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q06.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q06.sql",
+      "source_sha256": "3638535fb92a6026b3359a2ad9e6ed7da9ad9080152513e6fd3818d1a853c29f",
+      "published_sha256": "3638535fb92a6026b3359a2ad9e6ed7da9ad9080152513e6fd3818d1a853c29f",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q07.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q07.sql",
+      "source_sha256": "5e8077121a42ca8ebf5ff54e5842a614e839da945b0331e3b63d9ccad2361201",
+      "published_sha256": "5e8077121a42ca8ebf5ff54e5842a614e839da945b0331e3b63d9ccad2361201",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q08.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q08.sql",
+      "source_sha256": "948338f54b97a2c49aea15f8c4d609ecf244d00ad7754edcea60b4748504a1ce",
+      "published_sha256": "948338f54b97a2c49aea15f8c4d609ecf244d00ad7754edcea60b4748504a1ce",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q09.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q09.sql",
+      "source_sha256": "af90ccbe30ece396209e6627c10c0086ed54208100357922ee404de8bb867e56",
+      "published_sha256": "af90ccbe30ece396209e6627c10c0086ed54208100357922ee404de8bb867e56",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q10.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q10.sql",
+      "source_sha256": "0b48b00cffa3776b32e67e9041191dea25095e2a952ee5251990b9c8585031ed",
+      "published_sha256": "0b48b00cffa3776b32e67e9041191dea25095e2a952ee5251990b9c8585031ed",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q11.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q11.sql",
+      "source_sha256": "f313c766fac507c1204fb6f2bacd35719a61a11c0f69601302555150dddeda78",
+      "published_sha256": "f313c766fac507c1204fb6f2bacd35719a61a11c0f69601302555150dddeda78",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q12.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q12.sql",
+      "source_sha256": "3814c9f4b7a476ee894c477d43cedb299603b1ed0f5315790d52839c8da355bf",
+      "published_sha256": "3814c9f4b7a476ee894c477d43cedb299603b1ed0f5315790d52839c8da355bf",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q13.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q13.sql",
+      "source_sha256": "4a4a0b2c5646b2cad8f220a8f4b73ccb9f0acd45542353d63c18a69227bc20a3",
+      "published_sha256": "4a4a0b2c5646b2cad8f220a8f4b73ccb9f0acd45542353d63c18a69227bc20a3",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q14.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q14.sql",
+      "source_sha256": "e7ec7960a4c49219fc76dc03495a1530aeb30c796413dd1dc9d501b86934f222",
+      "published_sha256": "e7ec7960a4c49219fc76dc03495a1530aeb30c796413dd1dc9d501b86934f222",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q15.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q15.sql",
+      "source_sha256": "1cb57383eeff60261a1b4b2a141c71d8672729d743a7dfa74d9a4bcaf69c44d4",
+      "published_sha256": "1cb57383eeff60261a1b4b2a141c71d8672729d743a7dfa74d9a4bcaf69c44d4",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q16.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q16.sql",
+      "source_sha256": "45085e7672cb1500e625e048156fc55369e7a9bc91fd3647c3f7735a870c3ef8",
+      "published_sha256": "45085e7672cb1500e625e048156fc55369e7a9bc91fd3647c3f7735a870c3ef8",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q17.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q17.sql",
+      "source_sha256": "dfc7f00ac8a500c2ac2735b05b41b462bbe4af9ce7cd6c37e42d1bb9df4a02e1",
+      "published_sha256": "dfc7f00ac8a500c2ac2735b05b41b462bbe4af9ce7cd6c37e42d1bb9df4a02e1",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q18.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q18.sql",
+      "source_sha256": "8c5076061727d974f96708f0da930fc58843eac297a80c7ad658d64d152a19bb",
+      "published_sha256": "8c5076061727d974f96708f0da930fc58843eac297a80c7ad658d64d152a19bb",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q19.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q19.sql",
+      "source_sha256": "341f97d1f74deb30aca2a8b0ee849772a3b0e098a06cf12266c63573cb985478",
+      "published_sha256": "341f97d1f74deb30aca2a8b0ee849772a3b0e098a06cf12266c63573cb985478",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q20.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q20.sql",
+      "source_sha256": "fa96ad5cb897bf31ec9b96a6b2a0d1f7132e71e2f481321e6db16628bc3e5fd5",
+      "published_sha256": "fa96ad5cb897bf31ec9b96a6b2a0d1f7132e71e2f481321e6db16628bc3e5fd5",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q21.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q21.sql",
+      "source_sha256": "b29463f30a64e45a795047ee6e557e6c3c1f01fc612acc997873594048e74b59",
+      "published_sha256": "b29463f30a64e45a795047ee6e557e6c3c1f01fc612acc997873594048e74b59",
+      "changes": []
+    },
+    {
+      "path": "full-run/queries/q22.sql",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/queries/q22.sql",
+      "source_sha256": "d8ed6332e75f9193391000ba071e17adcf735a2d99c5a4da0f7c13d695ccbd42",
+      "published_sha256": "d8ed6332e75f9193391000ba071e17adcf735a2d99c5a4da0f7c13d695ccbd42",
+      "changes": []
+    },
+    {
+      "path": "full-run/review.csv",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/review.csv",
+      "source_sha256": "359526e4281278b2e2f66d93f80b5d712e5574a3e2c0594e0351de29a0a1d395",
+      "published_sha256": "359526e4281278b2e2f66d93f80b5d712e5574a3e2c0594e0351de29a0a1d395",
+      "changes": []
+    },
+    {
+      "path": "full-run/run.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/run.json",
+      "source_sha256": "d74d198cd1ca6c7c39f1c3eac1ab1e0fcf8698280a6ee511dd5661cb86750685",
+      "published_sha256": "ef3fcc17c9db59039f7071b9e04eb3f8b68498e00f27f2268a74ed54c0c2943a",
+      "changes": [
+        "Removed unrelated previous measurement from initial_recorder_status.last_result.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "full-run/runs.csv",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/runs.csv",
+      "source_sha256": "f3c71c141e8466ed0be749fb87f3a63c7f4a0758fff4834b26d61e5ebef62fca",
+      "published_sha256": "7ac2797931694a6fa81c8a3cf51f5cd00470a9b745d1778c0543acc531d9151e",
+      "changes": [
+        "capture_json paths made relative to this CSV directory; other fields retained verbatim."
+      ]
+    },
+    {
+      "path": "full-run/summary.csv",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/summary.csv",
+      "source_sha256": "12443bf7c5149767431f40a7db73bc49c202e130c71e267ed89a593e4082ce0a",
+      "published_sha256": "12443bf7c5149767431f40a7db73bc49c202e130c71e267ed89a593e4082ce0a",
+      "changes": []
+    },
+    {
+      "path": "full-run/validation.json",
+      "source": "results/tpch_ssd/20261109T104546_596531Z/validation.json",
+      "source_sha256": "11410403eb577277fe8013b72f553e0a3a5e3ec45e7156a88cb0b5e7735fc864",
+      "published_sha256": "a307bd6d633301acb610c58e1df596a5d3a765ea52e283a0c58eea6c0a32a790",
+      "changes": [
+        "Archive result paths made relative to this JSON directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "q19-cooldown/captures/q19_r01.json",
+      "source": "results/tpch_ssd/20261109T105743_739365Z/captures/q19_r01.json",
+      "source_sha256": "b2bb5149942c386d377df924670e553900e4875ef0f7cd97c5ec0a52433beb0b",
+      "published_sha256": "5c3ed60a9f399c24fa8d3ddcacf5757aed9b72312ad3a4c5afce383bf5f7d69e",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "q19-cooldown/captures/q19_r02.json",
+      "source": "results/tpch_ssd/20261109T105743_739365Z/captures/q19_r02.json",
+      "source_sha256": "671a3bb4b64a27ec7dc1f3d0afc063a1a1cdf1bd61aee22804f0439ddac35329",
+      "published_sha256": "a19bf881f9882fd4d5bf60bfdb5fbc682e3d475bab957f2e2eb8111a5cacbce9",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "q19-cooldown/captures/q19_r03.json",
+      "source": "results/tpch_ssd/20261109T105743_739365Z/captures/q19_r03.json",
+      "source_sha256": "11c4573ad8b9213c92db04e5ec45fcf16af7b5a9028f116a0a22b1017955df60",
+      "published_sha256": "088018abffe93e4f9164bacf2bad4a91a951085bcd50ac882bb27b10728f3a05",
+      "changes": [
+        "summary_path now resolves to this published JSON relative to its directory.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "q19-cooldown/queries/q19.sql",
+      "source": "results/tpch_ssd/20261109T105743_739365Z/queries/q19.sql",
+      "source_sha256": "341f97d1f74deb30aca2a8b0ee849772a3b0e098a06cf12266c63573cb985478",
+      "published_sha256": "341f97d1f74deb30aca2a8b0ee849772a3b0e098a06cf12266c63573cb985478",
+      "changes": []
+    },
+    {
+      "path": "q19-cooldown/run.json",
+      "source": "results/tpch_ssd/20261109T105743_739365Z/run.json",
+      "source_sha256": "d72b6d418846e09b575441c19a21ff889b24a33c2b304a98e5a85373e90d89af",
+      "published_sha256": "383b879ba279c2b32bcad5c6c137e2a7601ec2e8a9e8e7caf1b775d9e6af7f25",
+      "changes": [
+        "Removed unrelated previous measurement from initial_recorder_status.last_result.",
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "q19-cooldown/runs.csv",
+      "source": "results/tpch_ssd/20261109T105743_739365Z/runs.csv",
+      "source_sha256": "028ff29d410c1c2c4b698664b9d1b57c63cf4555f3854e2fceffb5c8b269268b",
+      "published_sha256": "f6c069380d1f7b5f9e86a46159739dad68354f072a6ca7d0aad312d56e0dda3a",
+      "changes": [
+        "capture_json paths made relative to this CSV directory; other fields retained verbatim."
+      ]
+    },
+    {
+      "path": "q19-cooldown/summary.csv",
+      "source": "results/tpch_ssd/20261109T105743_739365Z/summary.csv",
+      "source_sha256": "cd7ab02e8b8d51cf6cb6028ce6e278579af2729ebf51e8a0a19d224bdd5c43e3",
+      "published_sha256": "cd7ab02e8b8d51cf6cb6028ce6e278579af2729ebf51e8a0a19d224bdd5c43e3",
+      "changes": []
+    },
+    {
+      "path": "q19-cooldown/temperatures.json",
+      "source": "results/tpch_ssd/20261109T105743_739365Z/temperatures.json",
+      "source_sha256": "cd1c3c8fe70ea64e6a5edaf4a02222a573bb4296b653bac9b39c6f2f09cf2c55",
+      "published_sha256": "cd1c3c8fe70ea64e6a5edaf4a02222a573bb4296b653bac9b39c6f2f09cf2c55",
+      "changes": [
+        "JSON formatted with a final newline; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "hardware-check/total-1ms.csv",
+      "source": "results/qtl2312-validation/total-1ms.csv",
+      "source_sha256": "5145ce0023c6d70ad3ce0b758ff5121672f4ebd0c1959e30991a61bbcca6b991",
+      "published_sha256": "5145ce0023c6d70ad3ce0b758ff5121672f4ebd0c1959e30991a61bbcca6b991",
+      "changes": []
+    },
+    {
+      "path": "hardware-check/total-1ms.all-channels.csv",
+      "source": "results/qtl2312-validation/total-1ms.all-channels.csv",
+      "source_sha256": "42a6e0127e718b834cd315018e0412552252f684c1a0b2624959ad33a076c350",
+      "published_sha256": "42a6e0127e718b834cd315018e0412552252f684c1a0b2624959ad33a076c350",
+      "changes": []
+    },
+    {
+      "path": "hardware-check/total-1ms.energy.json",
+      "source": "results/qtl2312-validation/total-1ms.energy.json",
+      "source_sha256": "75206bce3711122580e15226782a77198b4ecd424f85f8cf6b4cf51e300d2b1c",
+      "published_sha256": "f62698160d49a56626adc4bf6cc093f00df6d5d5bea6849193670fb6609a2ea0",
+      "changes": [
+        "source_csv and all_channels_csv made relative; numerical measurements retained."
+      ]
+    },
+    {
+      "path": "hardware-check/controller-identity.txt",
+      "source": "validation/qtl2312/identity.txt",
+      "source_sha256": "d3dff79bcd9059314b004bf4c3040fbdc11dbd1032f84704734fa991727bd37d",
+      "published_sha256": "d3dff79bcd9059314b004bf4c3040fbdc11dbd1032f84704734fa991727bd37d",
+      "changes": []
+    },
+    {
+      "path": "hardware-check/fixture-identity.txt",
+      "source": "validation/qtl2312/fixture-identity.txt",
+      "source_sha256": "9f2e9bffb9b63e5edab911f13b486070496b12252b7e26525830667235a8ab13",
+      "published_sha256": "9f2e9bffb9b63e5edab911f13b486070496b12252b7e26525830667235a8ab13",
+      "changes": []
+    },
+    {
+      "path": "hardware-check/fixture-idle.xml",
+      "source": "validation/qtl2312/fixture.xml",
+      "source_sha256": "f8705c7f0494c21072c8ac2f03e71b8d70582bb4b167bcfc9fd05b1bf6dc43dd",
+      "published_sha256": "f8705c7f0494c21072c8ac2f03e71b8d70582bb4b167bcfc9fd05b1bf6dc43dd",
+      "changes": []
+    },
+    {
+      "path": "hardware-check/fixture-recording.xml",
+      "source": "validation/qtl2312/fixture-recording.xml",
+      "source_sha256": "c446fe11dc6ff9c0376e66052aff35ad6342f33aa56124d330242f766efb693f",
+      "published_sha256": "c446fe11dc6ff9c0376e66052aff35ad6342f33aa56124d330242f766efb693f",
+      "changes": []
+    },
+    {
+      "path": "hardware-check/physical-usb-replug.json",
+      "source": "validation/qtl2312/physical-replug-result.json",
+      "source_sha256": "4bdbf760fc1800e52136094f3ea09dea55bfd9ffe6ad45e1231761a70ed3edc2",
+      "published_sha256": "4bdbf760fc1800e52136094f3ea09dea55bfd9ffe6ad45e1231761a70ed3edc2",
+      "changes": []
+    },
+    {
+      "path": "hardware-check/qis-exit-recovery.json",
+      "source": "validation/qtl2312/reconnect-validation-result.json",
+      "source_sha256": "41cf118add695f1715d9212989a191bb1b133418e88fd6042d16643b04b8f7c9",
+      "published_sha256": "41cf118add695f1715d9212989a191bb1b133418e88fd6042d16643b04b8f7c9",
+      "changes": []
+    },
+    {
+      "path": "hardware-check/physical-usb-replug.csv",
+      "source": "validation/qtl2312/watch-after-fix.csv",
+      "source_sha256": "75390a3c8b08784cfe1a98cb9fa9ce61df8349deaf7a3c00afae0bafbaa45473",
+      "published_sha256": "75390a3c8b08784cfe1a98cb9fa9ce61df8349deaf7a3c00afae0bafbaa45473",
+      "changes": []
+    }
+  ]
+}

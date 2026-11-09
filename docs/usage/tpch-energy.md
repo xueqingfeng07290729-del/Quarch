@@ -1,5 +1,80 @@
 # DuckDB TPC-H 逐查询耗时与能耗
 
+## 当前 QTL2312：未压缩 SF30 的 SSD 冷缓存测量
+
+使用 [`bin/tpch-ssd-energy`](../../bin/tpch-ssd-energy)，实现位于
+[`tools/benchmark/tpch_ssd_energy.py`](../../tools/benchmark/tpch_ssd_energy.py)。
+先按[安装与接线说明](../setup/qtl2312-m2.md)准备环境。命令自动使用项目虚拟环境，复用已经启动的空闲 Quarch 服务：
+
+```bash
+cd /home/xueqing/Quarch/Quarch
+
+# 仅在服务未运行时，在终端 1 启动一次
+./bin/Quarch serve --device USB::QTL2312-01-578 --channel 3.3V --resample 10ms --csv off
+
+# 在终端 2 检查 state=idle、device_record_state=OFF、protocol_version=2
+./bin/Quarch status
+
+# 默认 Q1–Q22，每条独立执行 3 次，逐条测量 3.3V 供电轨能耗
+./bin/tpch-ssd-energy
+
+# 可选：仅测部分查询、改为单轮，或开启仪器逐点 CSV
+./bin/tpch-ssd-energy --queries 1,6,9 --runs 1 --csv on
+```
+
+默认数据库为 `/home/xueqing/experiment_dbs/duckdb/tpch_sf30_uncompressed.duckdb`，
+CLI 为同目录 `duckdb-v1.5.5/build/release/duckdb`。可用 `--database`、`--duckdb` 覆盖。
+启动时保存表行数、存储压缩方式、SQL、CLI 版本、块设备型号和序列号，数据库以只读方式打开。
+本机源码编译的 CLI 不支持 `-no-agent` 或 `.timer on 9`；入口检测实际支持的参数并使用兼容计时方式。
+
+默认参数为 `--cache cold --runs 3 --threads 8 --memory-limit 8GB --spill-limit 8GB --sleep 2 --csv off`。
+采样输出间隔沿用常驻服务，当前为 **10 ms / 100 Hz**。
+每次查询使用新的 DuckDB 进程，配置完成后只对数据库文件调用 `POSIX_FADV_DONTNEED`，
+并用 Linux `mincore` 检查缓存驻留比例不超过 0.1%；超出时拒绝把结果记为冷缓存。
+不执行预热查询，缓存清理、进程启动、结果写盘和两次测量之间的等待均在采集窗口外。
+这里的“冷缓存”指操作系统文件页缓存和新的数据库执行进程；SSD 控制器自身缓存仍可能影响读取。
+`--cache keep` 保留系统文件缓存，同时仍为每次执行创建新进程，不保证全部数据已经热缓存。
+
+一次采集只执行一条查询一次。停止录制后，记录 DuckDB 的存储读取/写入字节数、
+SQL 耗时、采集窗口长度、功率积分能耗和进程峰值内存；失败或不完整采集不会以零值进入汇总。
+能耗包含该 SSD 供电轨在采集窗口内的基础功耗、其他活动及可能的 DuckDB 临时文件 I/O，未扣除空闲基线。
+`3.3V` 对应主电源轨；使用 `--channel Tot` 可选择夹具定义的两路合计。
+原始功率 CSV 默认关闭，以免在被测 SSD 上额外写盘；`--csv on` 可开启，但会增加测量窗口内的记录开销。
+查询的临时文件受 `--spill-limit` 限制，开始每次查询前要求剩余空间足够容纳该上限并留出 2 GiB。
+
+输出位于 `results/tpch_ssd/<UTC时间>/`：
+
+- `summary.csv`：每条查询的能耗/耗时均值和中位数、平均功率、读取量、资源峰值。
+- `runs.csv`：每一次独立执行的结果，以及实际缓存驻留量、采集窗口与 SQL 耗时差。
+- `captures/qXX_rYY.json`：每次查询的 Quarch 能耗证据，包含完整性标志和逐点 CSV 路径（若开启）。
+- `queries/qXX.sql`：本次执行的 22 条 DuckDB TPC-H 查询。
+- `run.json`：参数、完成状态、数据库只读检查和测量范围说明。
+
+默认三次结果用于观察重复性。报告 `energy_median_J` 时应同时保留 `runs.csv`，
+并检查 `run.json` 为 `complete`、完成查询数为 22。
+
+本机 2026-11-09 实测完成 22 条查询、每条 3 次，共 66 次有效采集；所有查询前文件缓存驻留为 0，
+所有执行均有实际存储读取，未观察到临时文件溢写，数据库文件大小和修改时间保持不变。
+已发布的完整结果见 [summary.csv](../../experiments/2026-11-09-tpch-sf30-ssd/full-run/summary.csv)，
+每次结果在 [runs.csv](../../experiments/2026-11-09-tpch-sf30-ssd/full-run/runs.csv)。
+
+Q19、Q20 在整轮测试中的能耗最大/最小值比超过 1.5，应结合各次结果查看。
+Q19 原始三次能耗约为 21.40、91.95、106.98 J；其后观察到一个 SSD 温度传感器约 95.85°C。
+单独将间隔设为 30 秒复测 Q19，三次能耗约为 21.12、20.82、20.82 J，SQL 均约 7.8 秒，
+同一传感器的最高记录温度约 60.85°C。这支持温度可能影响结果的判断，但没有证明降速的唯一原因。
+原始值保留不变；[review.csv](../../experiments/2026-11-09-tpch-sf30-ssd/full-run/review.csv)
+并列展示原始分布和 Q19 复测值，[validation.json](../../experiments/2026-11-09-tpch-sf30-ssd/full-run/validation.json)
+记录完整性核对和复测目录。`complete` 表示测量流程完整，不表示查询已达到温度稳定状态。
+
+全部说明见[实验归档](../../experiments/2026-11-09-tpch-sf30-ssd/README.md)，其中单独保留了
+[Q19 复测](../../experiments/2026-11-09-tpch-sf30-ssd/q19-cooldown/summary.csv)。
+本次 69 次 TPC-H 采集的逐点 CSV 均关闭，JSON 是在线积分结果，无法仅靠这些摘要重新积分原始波形。
+硬件短测另有 CSV，可用 `python3 tools/analysis/verify_published_results.py` 离线核对积分、文件哈希及各次汇总。
+
+本机验证使用已有源码编译的 DuckDB 1.5.5；包含真实 CLI 的 109 项自动测试全部通过。
+
+## 原有连续执行批次测量
+
 `tools/benchmark/tpch_energy.py` 复用现有 DuckDB CLI 和常驻 Quarch 采集服务，逐条测量 Q1–Q22。
 它不启动 QPS，也不自动启动或关闭 QIS；运行前需要已有空闲的 `quarch_capture serve`。
 只测耗时仍使用原来的 [tpch_timing.py](tpch-timing.md)。
@@ -27,7 +102,7 @@ cd /home/ubuntu/Quarch
   --warmup 3 --runs 3 --batch-seconds 5 --sleep 5 --csv off
 ```
 
-`--channel` 必填，可选 L1、L2、L3，必须与实际被测负载的输出端一致。
+`--channel` 必填，QTL2843 使用 L1、L2、L3；QTL2312 使用夹具提供的 `3.3V`、`VIO_1V8`、`Tot`，必须与实际被测负载的电源轨一致。
 只测部分查询可以加 `--queries 1,6,9,18,21`；数据库路径、线程数、内存限制与只测耗时脚本含义相同。
 
 升级前已经运行的服务仍使用旧代码。确认空闲后，先 `python -m quarch_capture shutdown`，
@@ -56,7 +131,7 @@ cd /home/ubuntu/Quarch
 - 汇总表的 `sql_median_s`／`energy_median_J`：三组单次平均值的中位数。
   `sql_mean_s`／`energy_mean_J` 则由全部正式执行的总量除以总执行次数得到。
 - 能耗来自区间平均瞬时功率积分，不使用 CPU 时间估算，也不使用电压／电流均值相乘估算。
-- 当前 L2 给整台电脑供电，电脑同时运行数据库与 QIS／Python。
+- 上述 QTL2843 示例的 L2 给整台电脑供电，电脑同时运行数据库与 QIS／Python。
   所以能耗包含整机基础功耗、测量程序及采集命令边界的开销，**没有扣除空闲基线**。
 - 采集窗口比 SQL 总计时通常更长。`duration_minus_sql_s`／`duration_minus_sql_percent`
   保留这个差值，其中包括控制延迟、IPC、SQL 间处理及采样区间量化等因素。

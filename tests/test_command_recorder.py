@@ -55,7 +55,9 @@ class UsbConnectionKeyTests(unittest.TestCase):
             before = usb_connection_key("USB::QTL2843-03-002", root)
             for file in node.iterdir():
                 file.unlink()
-            node.rmdir()
+            # Keep the old inode allocated: some /tmp filesystems reuse it
+            # within the same timestamp tick, unlike the intended new node.
+            node.rename(root / "detached")
             self.make_device(root)
             self.assertNotEqual(before, usb_connection_key("USB::QTL2843-03-002", root))
 

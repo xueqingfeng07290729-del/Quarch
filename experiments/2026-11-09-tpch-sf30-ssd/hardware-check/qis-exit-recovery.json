@@ -1,0 +1,12 @@
+{
+  "command": "Quarch watch --channel 3.3V --10ms",
+  "samples": 303,
+  "interval_s": 0.01,
+  "output_Hz": 100,
+  "mean_power_W": 0.13419894719471948,
+  "same_recorder_pid": 9498,
+  "state": "idle",
+  "recording": "OFF",
+  "qis_exit_auto_recovery": true,
+  "physical_usb_replug_verified": false
+}
