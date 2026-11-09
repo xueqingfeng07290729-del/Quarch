@@ -16,12 +16,48 @@ from unittest.mock import Mock, patch
 from quarch_capture.commands import CommandHandler, DEFAULT_SOCKET, LocalServer, main, send_command
 from quarch_capture.measurement import Recorder
 from quarch_capture.qis_backend import (
-    QisBackend, read_stream_block, selected_synthetic_functions,
+    QisBackend, read_stream_block, selected_synthetic_functions, usb_connection_key,
 )
 from quarch_capture.stream_data import EnergySink
 
 
 HEADER = "Time uS,L1_PInst VA mVA,L2_PInst VA mVA,L3_PInst VA mVA,Tot_PInst VA mVA"
+
+
+class UsbConnectionKeyTests(unittest.TestCase):
+    def make_device(self, root, name="1-4", vendor="16d0"):
+        node = root / name
+        node.mkdir()
+        for name, value in {"idVendor": vendor, "idProduct": "0449", "serial": "QTL2843-03-002",
+                            "busnum": "1", "devnum": "8"}.items():
+            (node / name).write_text(value)
+        return node
+
+    def test_key_is_stable_until_matching_device_changes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            self.make_device(root, "unrelated", vendor="0000")
+            node = self.make_device(root)
+            key = usb_connection_key("USB::QTL2843-03-002", root)
+            self.assertIsNotNone(key)
+            self.assertEqual(key, usb_connection_key("usb:qtl2843-03-002", root))
+            (node / "devnum").write_text("9")
+            self.assertNotEqual(key, usb_connection_key("USB::QTL2843-03-002", root))
+            self.assertIsNone(usb_connection_key("USB::other", root))
+            self.assertIsNone(usb_connection_key("TCP::192.168.1.99", root))
+            (node / "serial").unlink()
+            self.assertIsNone(usb_connection_key("USB::QTL2843-03-002", root))
+
+    def test_new_node_invalidates_key_even_if_usb_address_is_reused(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            node = self.make_device(root)
+            before = usb_connection_key("USB::QTL2843-03-002", root)
+            for file in node.iterdir():
+                file.unlink()
+            node.rmdir()
+            self.make_device(root)
+            self.assertNotEqual(before, usb_connection_key("USB::QTL2843-03-002", root))
 
 
 class StreamOptimizationTests(unittest.TestCase):
@@ -44,20 +80,21 @@ class StreamOptimizationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             selected_synthetic_functions(self.definitions, "L3", False)
 
-    def test_repeated_profile_is_reused_but_channel_and_csv_switch_reconfigure(self):
+    def test_repeated_profile_is_reused_and_csv_switch_reconfigures(self):
         backend = QisBackend("USB::test", "10ms")
         backend.synthetic_definitions = self.definitions
         backend._command = Mock()
         first = backend.configure_channels("L2", False)
         self.assertEqual(first["synthetic_channels"], 1)
         backend._command.reset_mock()
-        backend.configure_channels("L2", False)
+        repeated = backend.configure_channels("L2", False)
+        self.assertFalse(repeated["channels_rebuilt"])
         backend._command.assert_not_called()
         detailed = backend.configure_channels("L2", True)
         self.assertEqual(detailed["synthetic_channels"], 4)
         backend._command.assert_any_call("stream created channels clear")
         backend.configure_channels("L1", False)
-        self.assertEqual(backend.active_profile, ("L1", False))
+        backend._command.assert_called_with("stream create channel " + self.functions[0])
 
     def test_full_blocks_are_drained_without_a_buffer_end_wait(self):
         reader = Mock()
@@ -68,10 +105,9 @@ class StreamOptimizationTests(unittest.TestCase):
         self.assertEqual(text, "0 100000\r\n10000 200000\r\n")
         reader.send_command.assert_called_once_with("stream text all", device="USB::test")
 
-    def test_failed_channel_creation_does_not_cache_a_partial_profile(self):
+    def test_failed_channel_creation_is_retried_from_clear(self):
         backend = QisBackend("USB::test", "10ms")
         backend.synthetic_definitions = self.definitions
-        backend.active_profile = ("L1", False)
         backend._command = Mock(side_effect=[None, RuntimeError("Create failed")])
         with self.assertRaisesRegex(RuntimeError, "Create failed"):
             backend.configure_channels("L2", False)
@@ -79,7 +115,127 @@ class StreamOptimizationTests(unittest.TestCase):
         backend._command.reset_mock(side_effect=True)
         backend.configure_channels("L2", False)
         backend._command.assert_any_call("stream created channels clear")
-        self.assertEqual(backend.active_profile, ("L2", False))
+        backend._command.assert_called_with("stream create channel " + self.functions[2])
+
+    def test_start_reuses_settings_until_usb_reconnect_or_identity_becomes_unknown(self):
+        backend = QisBackend("USB::test", "20ms")
+        backend.synthetic_definitions = self.definitions
+        backend.qis = SimpleNamespace(host="127.0.0.1", port=9722)
+        state = {"recording": False, "functions": [], "period": "20ms", "trigger": "manual", "pre": "0"}
+        commands, resamples = [], []
+
+        def hardware_command(command):
+            commands.append(command)
+            if command == "rec?":
+                return "ON" if state["recording"] else "OFF"
+            if command == "stream created channels clear":
+                state["functions"].clear()
+            elif command.startswith("stream create channel "):
+                state["functions"].append(command.removeprefix("stream create channel "))
+            elif command.startswith("rec:trigger:mode "):
+                state["trigger"] = command.split()[-1]
+            elif command.startswith("rec:trigger:pre "):
+                state["pre"] = command.split()[-1]
+            elif command == "rec stream":
+                self.assertEqual(state["trigger"], "manual")
+                self.assertEqual(state["pre"], "0")
+                state["recording"] = True
+            elif command == "rec stop":
+                state["recording"] = False
+            return "OK"
+
+        def resample(period):
+            resamples.append(period)
+            state["period"] = period
+            return "OK"
+
+        def make_reader(**kwargs):
+            reader = Mock()
+            delivered = False
+
+            def header(device):
+                if self.functions[2] in state["functions"]:
+                    return "Time uS,L2_PInst VA mVA"
+                return "Time uS,L2 voltage mV"
+
+            def read(command, device):
+                nonlocal delivered
+                if command == "stream?":
+                    return "Running" if state["recording"] else "Stopped"
+                if not delivered:
+                    delivered = True
+                    period_us = 20000 if state["period"] == "20ms" else 125
+                    return f"0 100000\r\n{period_us} 200000\r\neof"
+                return "eof"
+
+            reader.sendAndReceiveText.return_value = "Header ready"
+            reader.stream_header_format.side_effect = header
+            reader.send_command.side_effect = read
+            return reader
+
+        backend.device = SimpleNamespace(ConString="USB::test", send_command=hardware_command)
+        backend.power = SimpleNamespace(stream_resample_mode=resample)
+        module = SimpleNamespace(QisInterface=make_reader)
+        generations = [("usb", 8), ("usb", 8), ("usb", 9), None, None]
+        with patch.dict(sys.modules, {"quarchpy.connection_specific.connection_QIS": module}), \
+                patch("quarch_capture.qis_backend.usb_connection_key", side_effect=generations):
+            for index in range(len(generations)):
+                if index >= 2:
+                    # The Python backend survives, but QIS/device defaults return.
+                    state.update(functions=[], period="125us", trigger="external", pre="50")
+                sink = EnergySink("L2", .02)
+                try:
+                    started = backend.begin(sink)
+                    backend.end()
+                    self.assertEqual(sink.snapshot()["samples"], 2)
+                    self.assertEqual(sink.snapshot()["L2"]["energy_J"], 6)
+                    self.assertEqual(backend.record_state(), "OFF")
+                    self.assertEqual(started["channels_rebuilt"], index != 1)
+                    self.assertEqual(started["configuration_restored"], index != 1)
+                    self.assertEqual(commands.count("stream created channels clear"), max(1, index))
+                    self.assertEqual(len(resamples), max(1, index))
+                finally:
+                    if backend.reader is not None:
+                        backend.end()
+                    sink.close()
+
+    def test_stream_error_invalidates_a_previously_cached_configuration(self):
+        backend = QisBackend("USB::test", "10ms")
+        backend.synthetic_definitions = self.definitions
+        backend.active_profile, backend.configured_connection = ("L2", False), ("usb", 8)
+        backend.device = SimpleNamespace(ConString="USB::test", send_command=Mock(return_value="OFF"))
+        backend.qis = SimpleNamespace(host="127.0.0.1", port=9722)
+        backend._command = Mock()
+        reader = Mock()
+        reader.sendAndReceiveText.return_value = "Header ready"
+        reader.stream_header_format.return_value = "Time uS,L2 voltage mV"
+        with patch("quarch_capture.qis_backend.usb_connection_key", return_value=("usb", 8)), \
+                patch.dict(sys.modules, {"quarchpy.connection_specific.connection_QIS": SimpleNamespace(QisInterface=Mock(return_value=reader))}):
+            with self.assertRaisesRegex(RuntimeError, "selected power channel"):
+                backend.begin(EnergySink("L2", .01))
+        self.assertIsNone(backend.active_profile)
+        self.assertIsNone(backend.configured_connection)
+
+    def test_unavailable_device_discards_configuration_cache(self):
+        backend = QisBackend("USB::test", "10ms")
+        backend.active_profile, backend.configured_connection = ("L2", False), ("usb", 8)
+        backend.device = SimpleNamespace(send_command=Mock(return_value="Device USB::test Invalid or No Longer Valid"))
+        backend.record_state()
+        self.assertIsNone(backend.active_profile)
+        self.assertIsNone(backend.configured_connection)
+
+    def test_start_does_not_reconfigure_recording_or_disconnected_devices(self):
+        for state in ["ON", "Device USB::test Invalid or No Longer Valid"]:
+            with self.subTest(state=state):
+                backend = QisBackend("USB::test", "10ms")
+                backend.device = SimpleNamespace(send_command=Mock(return_value=state))
+                backend._command = Mock()
+                interface = Mock()
+                with patch.dict(sys.modules, {"quarchpy.connection_specific.connection_QIS": SimpleNamespace(QisInterface=interface)}):
+                    with self.assertRaisesRegex(RuntimeError, "not idle"):
+                        backend.begin(EnergySink("L2", .01))
+                backend._command.assert_not_called()
+                interface.assert_not_called()
 
     def test_running_eof_is_temporary_and_stopped_eof_keeps_final_samples(self):
         for native, expected in [("Running", "running"), ("Stopped", "stopped"), ("Out of Buffer", "overrun")]:

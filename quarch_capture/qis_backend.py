@@ -1,6 +1,7 @@
 """QTL2843 communication, stream configuration and buffered reading through QIS."""
 
 from contextlib import suppress
+from pathlib import Path
 import re
 import socket
 import threading
@@ -10,6 +11,26 @@ from .common import CHANNELS, utc_now
 
 
 READ_BATCH_INTERVAL_S = .1
+
+
+def usb_connection_key(target, root=Path("/sys/bus/usb/devices")):
+    """Identify this local USB enumeration; None means caching is unsafe."""
+    transport, _, serial = target.partition(":")
+    if transport.upper() != "USB":
+        return None
+    serial = serial.lstrip(":").casefold()
+    for node in root.glob("*"):
+        try:
+            if ((node / "idVendor").read_text().strip() != "16d0"
+                    or (node / "idProduct").read_text().strip() != "0449"
+                    or (node / "serial").read_text().strip().casefold() != serial):
+                continue
+            stat = node.stat()
+            return (str(node.resolve()), (node / "busnum").read_text().strip(),
+                    (node / "devnum").read_text().strip(), stat.st_ino, stat.st_ctime_ns)
+        except OSError:
+            continue
+    return None
 
 
 def selected_synthetic_functions(definitions, channel, include_details):
@@ -68,10 +89,11 @@ class QisBackend:
         self.started_by_us = False
         self.error = None
         self.stop_requested = threading.Event()
-        self.active_profile = None
         self.read_batch_interval_s = READ_BATCH_INTERVAL_S
+        self.active_profile = self.configured_connection = None
 
     def initialize(self):
+        self.active_profile = self.configured_connection = None
         from quarchpy.device import quarchDevice, quarchPPM
         from quarchpy.qis import isQisRunning, startLocalQis
         self.owns_qis = not isQisRunning()
@@ -87,8 +109,6 @@ class QisBackend:
                 raise RuntimeError("Selected device is not a QTL2843")
             if self.record_state().upper() != "OFF":
                 raise RuntimeError("Instrument is already recording; existing recording was not stopped")
-            for command in ["rec averaging 1", "rec:trigger:mode manual", "rec:trigger:pre 0"]:
-                self._command(command)
             # Create functions per measurement, rather than computing all three
             # outputs' RMS/frequency/power channels for every energy-only run.
             self.power = quarchPPM(self.device, skipDefaultSyntheticChannels=True)
@@ -105,7 +125,10 @@ class QisBackend:
             raise RuntimeError(f"{command}: {response}")
 
     def record_state(self):
-        return self.device.send_command("rec?").strip() if self.device else "DISCONNECTED"
+        state = self.device.send_command("rec?").strip() if self.device else "DISCONNECTED"
+        if state.upper() not in ("OFF", "ON"):
+            self.active_profile = self.configured_connection = None
+        return state
 
     @property
     def reader_active(self):
@@ -122,7 +145,8 @@ class QisBackend:
     def configure_channels(self, channel, include_details):
         profile = (channel, include_details)
         functions = selected_synthetic_functions(self.synthetic_definitions, channel, include_details)
-        if profile != self.active_profile:
+        rebuilt = profile != self.active_profile
+        if rebuilt:
             self.active_profile = None
             self._command("stream created channels clear")
             for function in functions:
@@ -132,13 +156,24 @@ class QisBackend:
             "processing_profile": "selected_channel_details" if include_details else "energy_only",
             "synthetic_channels": len(functions),
             "read_batch_interval_s": self.read_batch_interval_s,
+            "channels_rebuilt": rebuilt,
         }
 
     def begin(self, sink):
         from quarchpy.connection_specific.connection_QIS import QisInterface
         if self.reader_active or self.record_state().upper() != "OFF":
             raise RuntimeError("Instrument is not idle")
+        connection = usb_connection_key(self.target)
+        restore = connection is None or connection != self.configured_connection
+        if restore:
+            self.active_profile = None
+            for command in ["rec averaging 1", "rec:trigger:mode manual", "rec:trigger:pre 0"]:
+                self._command(command)
         profile = self.configure_channels(sink.channel, include_details=sink.csv_path is not None)
+        if restore:
+            self.set_resample(self.resample)
+            self.configured_connection = connection
+        profile["configuration_restored"] = restore
         self.reader = QisInterface(host=self.qis.host, port=self.qis.port, connectionMessage=False)
         self.error = None
         self.stop_requested.clear()
@@ -147,6 +182,7 @@ class QisBackend:
         try:
             self._command("rec stream")
         except Exception:
+            self.active_profile = self.configured_connection = None
             with suppress(Exception):
                 self._command("rec stop")
             self._close_interface(self.reader)
@@ -190,6 +226,7 @@ class QisBackend:
                             self.stop_requested.wait(self.read_batch_interval_s)
             except Exception as exc:
                 self.error = str(exc)
+                self.active_profile = self.configured_connection = None
                 if not self.stop_requested.is_set():
                     with suppress(Exception):
                         self._command("rec stop")
