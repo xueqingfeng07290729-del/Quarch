@@ -1,0 +1,31 @@
+flowchart LR
+    MAINS["交流电源"]
+    PSU["电脑 PSU 电源"]
+    ADAPTER["QTL2312 配套 12V DC 适配器"]
+    subgraph HOST["Linux 主机"]
+        SLOT["主板 PCIe 插槽"]
+        SOFTWARE["GPU 任务与采集软件<br/>QuarchPy / headless QIS"]
+    end
+    FIXTURE["QTL2983-02 PCIe x16 主夹具"]
+    AUX["配套 AUX 供电测量子板"]
+    GPU["NVIDIA GeForce RTX 5050<br/>PCIe 金手指 + 8-pin 供电口"]
+    PAM["QTL2312 PAM 控制器"]
+
+    MAINS --> PSU
+    MAINS --> ADAPTER
+    PSU -->|"经主板向插槽供电"| SLOT
+    SLOT <-->|"PCIe 数据"| FIXTURE
+    SLOT -->|"插槽电源"| FIXTURE
+    FIXTURE <-->|"PCIe 数据"| GPU
+    FIXTURE -->|"测量 +12V / +3.3V / +3.3Vaux"| GPU
+    PSU -->|"PCIe 显卡 8-pin 供电线"| AUX
+    AUX -->|"经测量的 +12Vaux<br/>连接显卡 8-pin"| GPU
+    AUX <-->|"配套 AUX 板连接线<br/>测量与控制"| FIXTURE
+    FIXTURE <-->|"Quarch 专用 USB-C 夹具线"| PAM
+    PAM <-->|"USB-B ↔ 主机 USB<br/>命令与测量数据"| SOFTWARE
+    ADAPTER -->|"控制器独立供电"| PAM
+
+    classDef supply fill:#fff7ed,stroke:#b45309,color:#111827
+    classDef measurement fill:#eff6ff,stroke:#1d4ed8,color:#111827
+    class MAINS,PSU,ADAPTER supply
+    class FIXTURE,AUX,PAM measurement

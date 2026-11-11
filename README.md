@@ -1,23 +1,28 @@
-# Quarch：M.2 NVMe SSD 功耗与能耗测量
+# Quarch：SSD 与显卡功耗、能耗测量
 
-通过 **QTL2312 + QTL2980-01 M.2 PAM 夹具**测量 SSD 电源轨，用 QuarchPy / headless QIS 采集，在 Linux 上逐条运行 DuckDB TPC-H 并积分能耗。保留此前 QTL2843 整机交流测量功能。
+通过 **QTL2312 + PAM 夹具**测量设备电源轨，用 QuarchPy / headless QIS 采集并积分能耗。
+SSD 使用 **QTL2980-01 M.2 夹具**，支持逐条测量 DuckDB TPC-H；显卡使用 **QTL2983-02 PCIe 夹具与 AUX 子板**，覆盖插槽和外接供电。保留此前 QTL2843 整机交流测量功能。
 
-当前设备已于 **2026-11-09（UTC）**实测。夹具返回的 `QTL2621-04-006` 是内部编号，产品型号为 `QTL2980-01`。
+SSD 方案已于 **2026-11-09（UTC）**实测。夹具返回的 `QTL2621-04-006` 是内部编号，产品型号为 `QTL2980-01`。
+**2026-11-11（UTC）**另完成 RTX 5050 与 QTL2983 的读取验证，接线和测量范围见[显卡指南](docs/setup/qtl2312-gpu.md)。
 默认输出 **10 ms / 100 Hz**，已验证 **1 ms / 1,000 Hz**；模拟通道硬件基础采样率为 **250 kHz**。
-`--channel 3.3V` 选择 SSD 主供电轨，`Tot` 选择夹具定义的 `3.3V + VIO_1V8` 合计。
-这些读数对应所选电源轨，包含采集窗口内的 SSD 基础功耗及其他 SSD 活动。
+SSD 的 `--channel 3.3V` 选择主供电轨，其 `Tot` 为 `3.3V + VIO_1V8`。
+显卡的 `Tot` 为插槽三路与外接 `+12Vaux` 的合计。各夹具的 `Tot` 定义不同，读数均包含所测电源轨在采集窗口内的基础功耗。
 
 ## 接线与环境
 
 - SSD 供电和 NVMe 数据：`主机 M.2 插槽 → QTL2980 夹具 → SSD`。
+- 显卡插槽供电和数据：`主板 PCIe 插槽 → QTL2983 主夹具 → 显卡`。
+- 显卡外接供电：`PSU 8-pin → AUX 子板 → 显卡 8-pin`；AUX 子板通过配套连接线接回主夹具。
 - 测量数据：`夹具 → Quarch 专用 USB-C 夹具线 → QTL2312 → USB 数据线 → Linux 主机`。
 - 控制器供电：`墙上插座 → 匹配的 12V DC 适配器 → QTL2312`。
 
 本方案不需要 PoE Injector 或 QTL2843。夹具 USB-C 接口只能连接匹配的 PAM 控制器。
-详细接线图、身份核对、USB 权限和通道含义见 [QTL2312 M.2 接线与使用](docs/setup/qtl2312-m2.md)；
+详细接线图、身份核对和通道含义见 [M.2 SSD 接线与使用](docs/setup/qtl2312-m2.md)和
+[显卡 PCIe / 8-pin 接线与使用](docs/setup/qtl2312-gpu.md)；
 依赖安装见 [安装指南](docs/setup/installation.md)。
 
-## 快速开始
+## SSD 快速开始
 
 以下命令在仓库根目录执行；先完成安装和接线。若已有空闲服务，不必重复启动。
 
@@ -40,6 +45,19 @@
 
 CSV 开关只控制逐点文件，输出频率默认仍为 100 Hz。更多操作见 [watch 指南](docs/usage/live-watch.md)
 及 [开始／停止与 CSV 开关](docs/usage/command-controlled-capture.md)。
+
+## 显卡测量入口
+
+先按[显卡接线图](docs/setup/qtl2312-gpu.md#接线示意图)接入 PCIe 主夹具和 AUX 子板。
+切换夹具后，结束原测量并重启空闲服务以重新发现通道。以下命令在两个终端分别运行：
+
+```bash
+./bin/Quarch serve --device USB::QTL2312-01-578 --channel Tot --resample 100ms --csv off
+./bin/Quarch watch --channel Tot --100ms
+```
+
+`Tot` 查看所测供电轨合计；改为 `--channel +12Vaux` 可单独查看 8-pin。
+当前矩阵负载测试中 Quarch 与 NVIDIA 自报功率存在差异，见[测量边界与待核查项](docs/setup/qtl2312-gpu.md#测量边界与待核查项)。
 
 ## 测量 TPC-H 每条查询的 SSD 能耗
 

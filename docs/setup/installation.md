@@ -2,6 +2,8 @@
 
 本页以当前 **QTL2312-01-578 + QTL2980-01**、用户 `xueqing` 为例，项目目录为 `/home/xueqing/Quarch/Quarch`。其他机器请替换路径、用户名和仪器序列号；QTL2843 历史设备见[旧环境基线](qtl2843-accuracy.md)。
 
+**QTL2983 显卡夹具复用相同的 QuarchPy/QIS 环境与 QTL2312 USB 权限规则**，其 PCIe 和 AUX 供电连接、通道名称见[显卡接线指南](qtl2312-gpu.md)。
+
 本指南复现当前服务器已经验证的安装路径：**Python 虚拟环境 → 厂商 QuarchPy 源码 → 配套 Java → QIS 共享运行包 → USB 权限 → 身份查询**。不需要安装完整桌面环境，也不启动 QPS。
 
 ## 已验证版本
