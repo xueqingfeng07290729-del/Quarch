@@ -4,6 +4,12 @@ QTL2312 的两种设备方案分别见 [M.2 SSD 接线](qtl2312-m2.md)与[显卡
 
 核实日期：**2026-11-07（UTC）**。
 
+**后续问题补充（2026-11-11）：**使用者反馈，QTL2843 通过 Tenda PoE30G-AT 供电正常、USB 通信正常，
+但 `DATA IN` 接 BUFFALO 交换机或直连 Dell Precision 5820 的 Linux 网卡时，Ethernet 均未建立物理链路。
+`eno1` 持续报告 `NO-CARRIER` / `Link detected: no`，现有排查尚未解决。
+完整接线、七项已做排查及未确认原因见 [Ethernet 问题记录](known-limitations.md#qtl2843-ethernet)。
+本页的 USB 可用记录不代表 Ethernet 已验证可用。
+
 实物接线由使用者确认：仪器连接 PoE Injector 的 `DATA/PWR OUT`，仪器 `INPUT` 接插座，电脑电源接仪器 `OUTPUT L2`，电脑与仪器另用 USB 数据线连接。USB 身份查询和普通用户访问权限由本机实际检查确认。
 
 ## 接线简图
