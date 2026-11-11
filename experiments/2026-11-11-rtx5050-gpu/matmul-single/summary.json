@@ -1,0 +1,147 @@
+{
+  "validated_at": "2026-11-11T09:34:44.737124+00:00",
+  "complete": true,
+  "device": "USB::QTL2312-01-578",
+  "fixture_identity": "Name:        Gen5 x16 AIC PAM Fixture with AUX Power\r\nPart#:       QTL2983-02\r\nSerial#:     QTL2983-02-002\r\nFPGA 1:      QTL3418,1.1\r\nInternal#:   QTL2631-02-012",
+  "operation": "C = A * B repeated using cuBLAS SGEMM",
+  "matrix_size": 4096,
+  "dtype": "FP32",
+  "math_mode": "CUBLAS_PEDANTIC_MATH",
+  "samples": 300,
+  "interval_s": 0.1,
+  "duration_s": 30,
+  "output_rate_Hz": 10,
+  "analog_sample_rate_Hz": 250000,
+  "hardware_averaging_samples": 1,
+  "record_state_after": "OFF",
+  "total_minus_rails_max_abs_uW": 1.0,
+  "channels": [
+    {
+      "channel": "+12V",
+      "mean_power_W": 0.052161926666666664,
+      "energy_J": 1.5648578,
+      "energy_Wh": 0.0004346827222222222,
+      "min_interval_mean_W": 0.039171,
+      "max_interval_mean_W": 0.063571,
+      "median_power_W": 0.0523735,
+      "stddev_power_W": 0.0044636663952355975
+    },
+    {
+      "channel": "+3.3V",
+      "mean_power_W": 0.5534034666666666,
+      "energy_J": 16.602104,
+      "energy_Wh": 0.004611695555555555,
+      "min_interval_mean_W": 0.547666,
+      "max_interval_mean_W": 0.5568609999999999,
+      "median_power_W": 0.55403,
+      "stddev_power_W": 0.002329460518851713
+    },
+    {
+      "channel": "+3.3Vaux",
+      "mean_power_W": 0.0068492399999999995,
+      "energy_J": 0.2054772,
+      "energy_Wh": 5.7077e-05,
+      "min_interval_mean_W": 0.0065899999999999995,
+      "max_interval_mean_W": 0.007143999999999999,
+      "median_power_W": 0.006848,
+      "stddev_power_W": 8.969598132952593e-05
+    },
+    {
+      "channel": "PCIe_slot_total",
+      "mean_power_W": 0.6124146333333333,
+      "energy_J": 18.372439,
+      "energy_Wh": 0.005103455277777778,
+      "min_interval_mean_W": 0.597534,
+      "max_interval_mean_W": 0.6252690000000001,
+      "median_power_W": 0.6135759999999999,
+      "stddev_power_W": 0.005922861545927124
+    },
+    {
+      "channel": "+12Vaux",
+      "mean_power_W": 105.02624327,
+      "energy_J": 3150.7872981,
+      "energy_Wh": 0.8752186939166666,
+      "min_interval_mean_W": 104.062263,
+      "max_interval_mean_W": 106.047809,
+      "median_power_W": 105.00136599999999,
+      "stddev_power_W": 0.3901307298140761
+    },
+    {
+      "channel": "Tot",
+      "mean_power_W": 105.63865787666666,
+      "energy_J": 3169.1597363,
+      "energy_Wh": 0.8803221489722223,
+      "min_interval_mean_W": 104.67141699999999,
+      "max_interval_mean_W": 106.651118,
+      "median_power_W": 105.61373,
+      "stddev_power_W": 0.3876575224638985
+    }
+  ],
+  "workload_validation": {
+    "passed": true,
+    "device": "NVIDIA GeForce RTX 5050",
+    "matrix_size": 4096,
+    "dtype": "FP32",
+    "loop_matmuls": 2928,
+    "loop_seconds": 43.2285,
+    "stopped_by_signal": true,
+    "verification_entries_each": 64,
+    "max_abs_error": 0,
+    "note": "Loop covers warmup and the measurement; this is not the matmul count within the 30-second capture."
+  },
+  "gpu_during_capture_process": {
+    "samples": 39,
+    "utilization_min_percent": 99.0,
+    "utilization_mean_percent": 99.92307692307692,
+    "utilization_max_percent": 100.0,
+    "temperature_min_C": 66.0,
+    "temperature_max_C": 70.0,
+    "pstates": [
+      "P1"
+    ],
+    "scope": "Telemetry includes QIS startup and shutdown around the exact 30-second hardware recording."
+  },
+  "post_run_compute_processes": "",
+  "idle_comparison": {
+    "source": "../idle/summary.json",
+    "idle_mean_W": 12.755458891666667,
+    "load_to_idle_mean_power_ratio": 8.281839075635451,
+    "load_minus_idle_mean_W": 92.88319898499999
+  },
+  "energy_scope": "Total GPU slot and external supply energy during the 30-second load window; warmup excluded; no idle baseline subtraction; not energy of a single matrix multiply.",
+  "min_max_note": "Minimum/maximum are 100 ms interval-mean powers, not instantaneous peaks.",
+  "source_csv": "gpu-matmul.all-channels.csv",
+  "voltage_current": {
+    "+12V": {
+      "mean_voltage_V": 11.974206666666667,
+      "mean_current_A": 0.004354696666666667,
+      "source_current_unit": "uA"
+    },
+    "+3.3V": {
+      "mean_voltage_V": 3.2877433333333332,
+      "mean_current_A": 0.16832303333333334,
+      "source_current_unit": "uA"
+    },
+    "+3.3Vaux": {
+      "mean_voltage_V": 3.4107366666666667,
+      "mean_current_A": 0.0020162733333333334,
+      "source_current_unit": "uA"
+    },
+    "+12Vaux": {
+      "mean_voltage_V": 11.91715,
+      "mean_current_A": 8.894043333333334,
+      "source_current_unit": "mA"
+    }
+  },
+  "fixture_status": {
+    "FixtureStatus": "OK",
+    "FixtureName": "Gen5 x16 AIC PAM Fixture with AUX Power"
+  },
+  "power_source_comparison": {
+    "nvidia_power_draw_mean_W": 129.99615384615385,
+    "nvidia_power_draw_min_W": 129.95,
+    "nvidia_power_draw_max_W": 130.03,
+    "nvidia_minus_quarch_mean_W": 24.35749596948719,
+    "note": "NVIDIA power.draw telemetry differs materially from the sum of measured Quarch rails. Units and power summation were checked; cause is unresolved. Verify all physical power paths through the fixtures and calibration before treating this as a fully reconciled GPU board-power measurement. NVIDIA telemetry includes QIS startup/shutdown around the 30-second window."
+  }
+}

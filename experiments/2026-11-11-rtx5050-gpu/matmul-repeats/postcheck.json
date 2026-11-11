@@ -1,0 +1,24 @@
+{
+  "checked_at": "2026-11-11T09:59:16.332512+00:00",
+  "record_state": "OFF",
+  "fixture_identity": "Name:        Gen5 x16 AIC PAM Fixture with AUX Power\r\nPart#:       QTL2983-02\r\nSerial#:     QTL2983-02-002\r\nFPGA 1:      QTL3418,1.1\r\nInternal#:   QTL2631-02-012",
+  "fixture_status": {
+    "FixtureStatus": "OK",
+    "FixtureName": "Gen5 x16 AIC PAM Fixture with AUX Power"
+  },
+  "analog_group": {
+    "Number": "0",
+    "SampleBase": "25000",
+    "SampleExponent": "1",
+    "SampleAveraging": "0"
+  },
+  "compute_processes": "",
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 5050",
+    "pstate": "P8",
+    "utilization.gpu": "0",
+    "temperature.gpu": "40",
+    "fan.speed": "31",
+    "power.draw": "13.54"
+  }
+}

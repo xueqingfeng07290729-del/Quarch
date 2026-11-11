@@ -1,0 +1,2 @@
+at,pstate,utilization.gpu,utilization.memory,temperature.gpu,power.draw,memory.used,clocks.current.graphics,clocks.current.memory,fan.speed,power.limit
+2026-11-11T09:54:02.945262+00:00,P8,0,1,30,12.22,2,180,405,0,130.00

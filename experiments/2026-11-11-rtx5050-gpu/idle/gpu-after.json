@@ -1,0 +1,16 @@
+{
+  "at": "2026-11-11T09:28:42.718936+00:00",
+  "gpus": [
+    {
+      "name": "NVIDIA GeForce RTX 5050",
+      "driver_version": "595.99.02",
+      "pstate": "P8",
+      "utilization.gpu": "0",
+      "utilization.memory": "1",
+      "memory.used": "2",
+      "power.draw": "13.06",
+      "temperature.gpu": "38"
+    }
+  ],
+  "compute_processes": ""
+}

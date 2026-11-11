@@ -1,0 +1,1 @@
+{"passed":true,"device":"NVIDIA GeForce RTX 5050","matrix_size":4096,"dtype":"FP32","loop_matmuls":2960,"loop_seconds":43.2046,"stopped_by_signal":true,"verification_entries_each":64,"max_abs_error":0,"note":"Loop covers warmup and the measurement; this is not the matmul count within the 30-second capture."}

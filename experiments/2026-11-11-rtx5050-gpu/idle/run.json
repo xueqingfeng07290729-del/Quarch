@@ -1,0 +1,69 @@
+{
+  "status": "complete",
+  "created_at": "2026-11-11T09:27:04.620584+00:00",
+  "device": "USB::QTL2312-01-578",
+  "channel": "Tot",
+  "requested_duration_s": 60,
+  "output_interval_s": 0.5,
+  "output_rate_Hz": 2,
+  "expected_samples": 120,
+  "idle_settle_s": 30,
+  "driver_version": "595.99.02",
+  "condition": "Driver active; no GPU workload submitted during settling or capture. NVIDIA telemetry queried before/after, not polled during capture.",
+  "power_scope": "GPU slot +12V, +3.3V, +3.3Vaux, and external +12Vaux; total supplied power, no baseline subtraction.",
+  "capture_started_at": "2026-11-11T09:27:34.670485+00:00",
+  "before": {
+    "at": "2026-11-11T09:27:34.670337+00:00",
+    "gpus": [
+      {
+        "name": "NVIDIA GeForce RTX 5050",
+        "driver_version": "595.99.02",
+        "pstate": "P8",
+        "utilization.gpu": "0",
+        "utilization.memory": "1",
+        "memory.used": "2",
+        "power.draw": "12.59",
+        "temperature.gpu": "36"
+      }
+    ],
+    "compute_processes": ""
+  },
+  "command": [
+    "/home/xueqing/Quarch/Quarch/.venv/bin/python",
+    "-m",
+    "quarch_capture",
+    "--device",
+    "USB::QTL2312-01-578",
+    "--channel",
+    "Tot",
+    "--seconds",
+    "60",
+    "--resample",
+    "500ms",
+    "--output",
+    "results/gpu_idle/20261111T092704_620484Z/gpu-idle.csv"
+  ],
+  "capture_finished_at": "2026-11-11T09:28:42.676841+00:00",
+  "after": {
+    "at": "2026-11-11T09:28:42.718936+00:00",
+    "gpus": [
+      {
+        "name": "NVIDIA GeForce RTX 5050",
+        "driver_version": "595.99.02",
+        "pstate": "P8",
+        "utilization.gpu": "0",
+        "utilization.memory": "1",
+        "memory.used": "2",
+        "power.draw": "13.06",
+        "temperature.gpu": "38"
+      }
+    ],
+    "compute_processes": ""
+  },
+  "validated_at": "2026-11-11T09:29:07.900465+00:00",
+  "actual_samples": 120,
+  "actual_duration_s": 60,
+  "record_state_after": "OFF",
+  "summary_json": "summary.json",
+  "summary_csv": "summary.csv"
+}

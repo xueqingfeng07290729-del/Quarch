@@ -1,0 +1,75 @@
+{
+  "checked_at": "2026-11-11T09:11:55.526972+00:00",
+  "device": "USB::QTL2312-01-578",
+  "fixture": "QTL2983-02-002",
+  "samples": 500,
+  "duration_s": 5,
+  "interval_s": 0.01,
+  "output_rate_Hz": 100,
+  "rails": {
+    "+12V": {
+      "mean_power_W": 0.022186532,
+      "energy_J": 0.11093266,
+      "energy_Wh": 3.081462777777778e-05,
+      "min_interval_mean_W": 0.00233,
+      "max_interval_mean_W": 0.043919,
+      "mean_voltage_V": 11.992464,
+      "mean_current_A": 0.001849872
+    },
+    "+3.3V": {
+      "mean_power_W": 0.5326347379999999,
+      "energy_J": 2.66317369,
+      "energy_Wh": 0.0007397704694444444,
+      "min_interval_mean_W": 0.530604,
+      "max_interval_mean_W": 0.534386,
+      "mean_voltage_V": 3.29387,
+      "mean_current_A": 0.16170769799999998
+    },
+    "+3.3Vaux": {
+      "mean_power_W": 0.00609559,
+      "energy_J": 0.03047795,
+      "energy_Wh": 8.466097222222223e-06,
+      "min_interval_mean_W": 0.005706,
+      "max_interval_mean_W": 0.00652,
+      "mean_voltage_V": 3.413154,
+      "mean_current_A": 0.001787056
+    },
+    "+12Vaux": {
+      "mean_power_W": 17.352523058,
+      "energy_J": 86.76261529,
+      "energy_Wh": 0.024100726469444445,
+      "min_interval_mean_W": 16.805516,
+      "max_interval_mean_W": 17.910847999999998,
+      "mean_voltage_V": 11.98924,
+      "mean_current_A": 1.45632
+    },
+    "Tot": {
+      "mean_power_W": 17.913439938,
+      "energy_J": 89.56719969,
+      "energy_Wh": 0.024879777691666664,
+      "min_interval_mean_W": 17.362709,
+      "max_interval_mean_W": 18.465875
+    }
+  },
+  "pcie_slot_mean_power_W": 0.56091686,
+  "total_minus_rails_max_abs_uW": 2.0,
+  "source_csv": "gpu-total.all-channels.csv",
+  "gpu_pci": "01:00.0 VGA compatible controller [0300]: NVIDIA Corporation Device [10de:2d83] (rev a1)\n\tSubsystem: Micro-Star International Co., Ltd. [MSI] Device [1462:5381]\n\tKernel modules: nvidiafb, nouveau\n01:00.1 Audio device [0403]: NVIDIA Corporation Device [10de:22ec] (rev a1)\n\tSubsystem: NVIDIA Corporation Device [10de:0000]\n\tKernel driver in use: snd_hda_intel\n\tKernel modules: snd_hda_intel\n",
+  "gpu_driver_bound": false,
+  "measurement_note": "Short measurement of the existing operating state; no GPU workload was launched.",
+  "record_state_after": "OFF",
+  "sampling_groups_after": [
+    {
+      "Number": "0",
+      "SampleBase": "25000",
+      "SampleExponent": "1",
+      "SampleAveraging": "0"
+    },
+    {
+      "Number": "1",
+      "SampleBase": "10000",
+      "SampleExponent": "2",
+      "SampleAveraging": "11"
+    }
+  ]
+}

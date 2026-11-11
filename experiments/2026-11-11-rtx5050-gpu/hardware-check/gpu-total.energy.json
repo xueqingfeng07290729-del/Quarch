@@ -1,0 +1,30 @@
+{
+  "samples": 500,
+  "interval_s": 0.01,
+  "duration_s": 5.0,
+  "selected_channel": "Tot",
+  "Tot": {
+    "mean_power_W": 17.913439938,
+    "energy_J": 89.56719969,
+    "energy_Wh": 0.024879777691666664,
+    "min_interval_mean_W": 17.362709,
+    "max_interval_mean_W": 18.465875
+  },
+  "source_csv": "gpu-total.csv",
+  "output_rate_Hz": 100.0,
+  "start_time_s": 0.0,
+  "end_time_exclusive_s": 5.0,
+  "method": "Sum of QIS interval-mean instantaneous power multiplied by each interval duration",
+  "power_source": "QIS power channel; full-rate V/I is enforced by this project's capture backend",
+  "negative_power_policy": "Preserved; reported energy is net energy",
+  "requested_duration_s": 5.0,
+  "requested_duration_matches": true,
+  "all_channels_csv": "gpu-total.all-channels.csv",
+  "device": "USB::QTL2312-01-578",
+  "instrument_identity": "Family:     Power Analysis Modules\r\nName:       Power Analysis Module\r\nPart#:      QTL2312-01\r\nProcessor:  QTL2102-01,5.124\r\nBootloader: QTL2102-01,5.124\r\nFPGA 1:     QTL2103,1.12\r\nSerial#:    QTL2098-02-583\r\nEnclosure#: QTL2312-01-578\r\nFixture:    QTL2983-02 Gen5 x16 AIC PAM Fixture with AUX Power",
+  "fixture_identity": "Name:        Gen5 x16 AIC PAM Fixture with AUX Power\r\nPart#:       QTL2983-02\r\nSerial#:     QTL2983-02-002\r\nFPGA 1:      QTL3418,1.1\r\nInternal#:   QTL2631-02-012",
+  "analog_base_rates_Hz": {
+    "0": 250000
+  },
+  "hardware_averaging_samples": 1
+}

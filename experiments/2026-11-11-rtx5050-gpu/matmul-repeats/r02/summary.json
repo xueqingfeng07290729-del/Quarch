@@ -1,0 +1,155 @@
+{
+  "complete": true,
+  "run": "r02",
+  "measurement": {
+    "run": "r02",
+    "start_temperature_C": 32.0,
+    "after_5s_warmup_temperature_C": 54.0,
+    "end_under_load_temperature_C": 67.0,
+    "temperature_rise_C": 35.0,
+    "max_observed_load_temperature_C": 67.0,
+    "mean_power_W": 108.72087766666667,
+    "energy_J": 3261.62633,
+    "energy_Wh": 0.9060073138888889,
+    "min_100ms_power_W": 107.703251,
+    "max_100ms_power_W": 109.680602,
+    "within_run_power_stddev_W": 0.34857291941711716,
+    "PCIe_slot_mean_W": 0.5755982666666667,
+    "AUX_mean_W": 108.14527939999999,
+    "NVIDIA_power_draw_mean_W": 129.9971794871795,
+    "NVIDIA_minus_Quarch_mean_W": 21.276301820512828,
+    "GPU_utilization_mean_percent": 99.92307692307692,
+    "GPU_utilization_min_percent": 99.0,
+    "graphics_clock_mean_MHz": 2831.846153846154,
+    "fan_start_percent": 31.0,
+    "fan_end_percent": 44.0,
+    "temperature_wait_s": 78.689,
+    "samples": 300,
+    "interval_s": 0.1,
+    "duration_s": 30
+  },
+  "channels": {
+    "+12V": {
+      "mean_power_W": 0.036084573333333335,
+      "energy_J": 1.0825372,
+      "energy_Wh": 0.0003007047777777778,
+      "min_interval_mean_W": 0.018843,
+      "max_interval_mean_W": 0.048359
+    },
+    "+3.3V": {
+      "mean_power_W": 0.5330835266666666,
+      "energy_J": 15.992505799999998,
+      "energy_Wh": 0.004442362722222221,
+      "min_interval_mean_W": 0.519318,
+      "max_interval_mean_W": 0.543101
+    },
+    "+3.3Vaux": {
+      "mean_power_W": 0.0064301666666666665,
+      "energy_J": 0.192905,
+      "energy_Wh": 5.358472222222222e-05,
+      "min_interval_mean_W": 0.0061259999999999995,
+      "max_interval_mean_W": 0.0067529999999999995
+    },
+    "+12Vaux": {
+      "mean_power_W": 108.14527939999999,
+      "energy_J": 3244.3583820000003,
+      "energy_Wh": 0.9012106616666667,
+      "min_interval_mean_W": 107.123137,
+      "max_interval_mean_W": 109.119817
+    },
+    "Tot": {
+      "mean_power_W": 108.72087766666667,
+      "energy_J": 3261.62633,
+      "energy_Wh": 0.9060073138888889,
+      "min_interval_mean_W": 107.703251,
+      "max_interval_mean_W": 109.680602
+    },
+    "PCIe_slot_total": {
+      "mean_power_W": 0.5755982666666667,
+      "energy_J": 17.267948
+    }
+  },
+  "total_minus_rails_max_abs_uW": 1.0,
+  "gpu_during_capture_command": {
+    "samples": 39,
+    "pstates": [
+      "P1"
+    ],
+    "utilization_percent": {
+      "n": 39,
+      "mean": 99.92307692307692,
+      "sample_stddev": 0.26995276239950855,
+      "cv_percent": 0.2701605782289154,
+      "min": 99.0,
+      "max": 100.0,
+      "range_percent_of_mean": 1.0007698229407236
+    },
+    "temperature_C": {
+      "n": 39,
+      "mean": 61.53846153846154,
+      "sample_stddev": 3.7052321032927553,
+      "cv_percent": 6.021002167850727,
+      "min": 54.0,
+      "max": 66.0,
+      "range_percent_of_mean": 19.5
+    },
+    "nvidia_power_draw_W": {
+      "n": 39,
+      "mean": 129.9971794871795,
+      "sample_stddev": 0.021392167522460086,
+      "cv_percent": 0.016455870509536563,
+      "min": 129.94,
+      "max": 130.04,
+      "range_percent_of_mean": 0.07692474590178047
+    },
+    "graphics_clock_MHz": {
+      "n": 39,
+      "mean": 2831.846153846154,
+      "sample_stddev": 17.237563726897903,
+      "cv_percent": 0.6087041029219122,
+      "min": 2797.0,
+      "max": 2865.0,
+      "range_percent_of_mean": 2.4012603900689955
+    },
+    "memory_clock_MHz": {
+      "n": 39,
+      "mean": 9801.0,
+      "sample_stddev": 0.0,
+      "cv_percent": 0.0,
+      "min": 9801.0,
+      "max": 9801.0,
+      "range_percent_of_mean": 0.0
+    },
+    "fan_percent": {
+      "n": 39,
+      "mean": 36.02564102564103,
+      "sample_stddev": 5.47956576980704,
+      "cv_percent": 15.210182563877193,
+      "min": 30.0,
+      "max": 43.0,
+      "range_percent_of_mean": 36.08540925266904
+    },
+    "power_limit_W": [
+      130.0
+    ],
+    "scope": "Approximately 1 Hz telemetry during the capture command, including QIS startup/shutdown around the exact 30 s hardware recording; not precisely time aligned to Quarch samples."
+  },
+  "workload_validation": {
+    "passed": true,
+    "device": "NVIDIA GeForce RTX 5050",
+    "matrix_size": 4096,
+    "dtype": "FP32",
+    "loop_matmuls": 2976,
+    "loop_seconds": 43.2741,
+    "stopped_by_signal": true,
+    "verification_entries_each": 64,
+    "max_abs_error": 0,
+    "note": "Loop covers warmup and the measurement; this is not the matmul count within the 30-second capture."
+  },
+  "fixture_identity": "Name:        Gen5 x16 AIC PAM Fixture with AUX Power\r\nPart#:       QTL2983-02\r\nSerial#:     QTL2983-02-002\r\nFPGA 1:      QTL3418,1.1\r\nInternal#:   QTL2631-02-012",
+  "hardware_averaging_samples": 1,
+  "analog_base_rates_Hz": {
+    "0": 250000
+  },
+  "energy_scope": "Total GPU slot and external supply energy during the 30-second load window; warmup excluded; no idle baseline subtraction; not energy of a single matrix multiply."
+}

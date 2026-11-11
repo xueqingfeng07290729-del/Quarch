@@ -1,0 +1,29 @@
+{
+  "status": "complete",
+  "created_at": "2026-11-11T09:50:45.662855+00:00",
+  "reference_experiment": "../matmul-single",
+  "runs_requested": 3,
+  "temperature_target_C": 31,
+  "temperature_tolerance_C": 1,
+  "matrix_size": 4096,
+  "dtype": "FP32",
+  "math_mode": "CUBLAS_PEDANTIC_MATH",
+  "warmup_s": 5,
+  "capture_duration_s": 30,
+  "output_interval_s": 0.1,
+  "samples_per_run": 300,
+  "source_sha256": "3fc5ca2ac93ae4d9cba3713a83c9927c6b54b2423b9e13b9e90d6f25aef0c40e",
+  "binary_sha256": "26754130539a665942b8430c79e75545f32ef758200838e089c16e7166851d9a",
+  "temperature_policy": "Each load starts when GPU is P8, utilization 0%, and reported temperature is 30-32 C. Automatic fan and power policies are not changed. Temperature equality alone does not guarantee identical heatsink/ambient temperature.",
+  "comparison_scope": "Three new independent runs; previous single run retained only for context; Quarch power is not calibrated against NVIDIA telemetry.",
+  "temperature_target_selection": "Preparation allowed natural cooling from 49 C to 31 C. Selected 31 +/- 1 C before starting any of the three repetitions.",
+  "started_at": "2026-11-11T09:54:02.863472+00:00",
+  "completed_runs": [
+    "r01",
+    "r02",
+    "r03"
+  ],
+  "active_run": null,
+  "finished_at": "2026-11-11T09:58:51.786692+00:00",
+  "analyzed_at": "2026-11-11T09:59:15.795070+00:00"
+}

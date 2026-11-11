@@ -1,0 +1,7 @@
+{
+  "checked_at": "2026-11-11T09:11:20.624203+00:00",
+  "device": "USB::QTL2312-01-578",
+  "identity": "Family:     Power Analysis Modules\r\nName:       Power Analysis Module\r\nPart#:      QTL2312-01\r\nProcessor:  QTL2102-01,5.124\r\nBootloader: QTL2102-01,5.124\r\nFPGA 1:     QTL2103,1.12\r\nSerial#:    QTL2098-02-583\r\nEnclosure#: QTL2312-01-578\r\nFixture:    QTL2983-02 Gen5 x16 AIC PAM Fixture with AUX Power",
+  "fixture_identity": "Name:        Gen5 x16 AIC PAM Fixture with AUX Power\r\nPart#:       QTL2983-02\r\nSerial#:     QTL2983-02-002\r\nFPGA 1:      QTL3418,1.1\r\nInternal#:   QTL2631-02-012",
+  "record_state_before": "OFF"
+}

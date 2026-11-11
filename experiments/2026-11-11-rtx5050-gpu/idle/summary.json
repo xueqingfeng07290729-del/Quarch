@@ -1,0 +1,111 @@
+{
+  "validated_at": "2026-11-11T09:29:07.900465+00:00",
+  "complete": true,
+  "device": "USB::QTL2312-01-578",
+  "fixture_identity": "Name:        Gen5 x16 AIC PAM Fixture with AUX Power\r\nPart#:       QTL2983-02\r\nSerial#:     QTL2983-02-002\r\nFPGA 1:      QTL3418,1.1\r\nInternal#:   QTL2631-02-012",
+  "samples": 120,
+  "interval_s": 0.5,
+  "duration_s": 60,
+  "output_rate_Hz": 2,
+  "analog_sample_rate_Hz": 250000,
+  "hardware_averaging_samples": 1,
+  "record_state_after": "OFF",
+  "total_minus_rails_max_abs_uW": 2.0,
+  "channels": [
+    {
+      "channel": "+12V",
+      "mean_power_W": 0.0513563,
+      "energy_J": 3.081378,
+      "energy_Wh": 0.0008559383333333334,
+      "min_interval_mean_W": 0.042166999999999996,
+      "max_interval_mean_W": 0.059891999999999994,
+      "median_power_W": 0.0513315,
+      "stddev_power_W": 0.003500046072553903
+    },
+    {
+      "channel": "+3.3V",
+      "mean_power_W": 0.1598967083333333,
+      "energy_J": 9.593802499999999,
+      "energy_Wh": 0.0026649451388888884,
+      "min_interval_mean_W": 0.158336,
+      "max_interval_mean_W": 0.16136799999999998,
+      "median_power_W": 0.159727,
+      "stddev_power_W": 0.0006426394971240795
+    },
+    {
+      "channel": "+3.3Vaux",
+      "mean_power_W": 0.006697133333333332,
+      "energy_J": 0.40182799999999996,
+      "energy_Wh": 0.00011161888888888887,
+      "min_interval_mean_W": 0.006513,
+      "max_interval_mean_W": 0.006939,
+      "median_power_W": 0.006696,
+      "stddev_power_W": 8.907730101184899e-05
+    },
+    {
+      "channel": "PCIe_slot_total",
+      "mean_power_W": 0.21795014166666668,
+      "energy_J": 13.0770085,
+      "energy_Wh": 0.003632502361111111,
+      "min_interval_mean_W": 0.20872900000000003,
+      "max_interval_mean_W": 0.226322,
+      "median_power_W": 0.21802100000000002,
+      "stddev_power_W": 0.0036572916967245795
+    },
+    {
+      "channel": "+12Vaux",
+      "mean_power_W": 12.537508733333333,
+      "energy_J": 752.2505239999999,
+      "energy_Wh": 0.20895847888888888,
+      "min_interval_mean_W": 12.341652999999999,
+      "max_interval_mean_W": 12.782672999999999,
+      "median_power_W": 12.534089000000002,
+      "stddev_power_W": 0.05843931866841785
+    },
+    {
+      "channel": "Tot",
+      "mean_power_W": 12.755458891666667,
+      "energy_J": 765.3275335,
+      "energy_Wh": 0.21259098152777778,
+      "min_interval_mean_W": 12.555822,
+      "max_interval_mean_W": 13.005431999999999,
+      "median_power_W": 12.7515185,
+      "stddev_power_W": 0.05839086052040394
+    }
+  ],
+  "gpu_before": {
+    "at": "2026-11-11T09:27:34.670337+00:00",
+    "gpus": [
+      {
+        "name": "NVIDIA GeForce RTX 5050",
+        "driver_version": "595.99.02",
+        "pstate": "P8",
+        "utilization.gpu": "0",
+        "utilization.memory": "1",
+        "memory.used": "2",
+        "power.draw": "12.59",
+        "temperature.gpu": "36"
+      }
+    ],
+    "compute_processes": ""
+  },
+  "gpu_after": {
+    "at": "2026-11-11T09:28:42.718936+00:00",
+    "gpus": [
+      {
+        "name": "NVIDIA GeForce RTX 5050",
+        "driver_version": "595.99.02",
+        "pstate": "P8",
+        "utilization.gpu": "0",
+        "utilization.memory": "1",
+        "memory.used": "2",
+        "power.draw": "13.06",
+        "temperature.gpu": "38"
+      }
+    ],
+    "compute_processes": ""
+  },
+  "idle_qualification": "No GPU workload submitted during capture; GPU utilization and compute-process list checked at endpoints only.",
+  "min_max_note": "Minimum/maximum are means over 500 ms output windows, not instantaneous peaks.",
+  "source_csv": "gpu-idle.all-channels.csv"
+}
