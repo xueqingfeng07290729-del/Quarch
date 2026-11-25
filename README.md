@@ -173,6 +173,7 @@ cd /home/ubuntu/Quarch
 - [Ethernet：静态地址、身份查询、1000 Hz 采集和重连](docs/setup/ethernet.md)
 - [当前 Ethernet 与保留的 USB 接线图](docs/setup/current-wiring.md)
 - [故障如何排查和恢复，哪些原因尚未确认](docs/troubleshooting/ethernet-recovery-20261125.md)
+- [官方自检与状态查询](docs/setup/ethernet.md#自检和状态查询有什么用)、[如何执行一次软重启](docs/setup/ethernet.md#如何执行一次软重启)
 - [USB 安装与权限配置（保留）](docs/setup/installation.md#qtl2843-原-ubuntu-usb-配置保留)、[USB 排障](docs/setup/usb-notes.md)
 
 型号精度与旧环境基线见 [QTL2843 精度资料](docs/setup/qtl2843-accuracy.md)。
