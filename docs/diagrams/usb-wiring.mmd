@@ -1,0 +1,18 @@
+flowchart LR
+    MAINS["接地交流市电"]
+    INJECTOR["PoE Injector"]
+    PAM["QTL2843-03<br/>IEC Mains PAM"]
+    PC["Headless Linux 电脑<br/>被测设备 + QuarchPy / QIS 控制端"]
+
+    MAINS -->|"Injector 交流供电"| INJECTOR
+    INJECTOR -->|"DATA/PWR OUT → LAN/PoE<br/>网线：仪器供电"| PAM
+    MAINS -->|"IEC INPUT<br/>被测回路交流输入"| PAM
+    PAM -->|"OUTPUT L2 → 电脑电源入口<br/>被测交流功率"| PC
+    PC <-->|"USB 数据线 ↔ 仪器 USB-B<br/>命令 + 测量数据"| PAM
+
+    classDef power fill:#fff7ed,stroke:#b45309,color:#111827
+    classDef equipment fill:#eff6ff,stroke:#1d4ed8,color:#111827
+    class MAINS,INJECTOR power
+    class PAM,PC equipment
+    linkStyle 0,1,2,3 stroke:#b45309,stroke-width:2px
+    linkStyle 4 stroke:#1d4ed8,stroke-width:2px

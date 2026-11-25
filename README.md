@@ -12,7 +12,7 @@ SSD 的 `--channel 3.3V` 选择主供电轨，其 `Tot` 为 `3.3V + VIO_1V8`。
 
 ## 当前不足与未解决问题
 
-- **QTL2843 Ethernet 无物理链路**：Tenda PoE30G-AT 供电及 USB 通信正常，接交换机或直连 Linux 均未连通，`eno1` 持续报告 `NO-CARRIER`。已尝试的线缆、端口、EEE、100 Mbps 协商和 IP 排查均未解决问题，原因尚未确定。
+- **QTL2843 Ethernet 已恢复（2026-11-25）**：一次软重启并重配静态 IP 后，无 USB 的 1000 Hz / 30 秒采集和网线重连均通过。原始根因尚未完全确定，UDP 自动发现及断电后地址保持仍需验证，见[排查与恢复记录](docs/troubleshooting/ethernet-recovery-20261125.md)。
 - **M.2 SSD 固定不稳**：目前无法把 SSD 可靠固定到夹具上，只能依靠插槽本身的固定能力。
 - **PCIe 安装受限**：安装夹具后很难安装显卡及其他 PCIe 设备，新购夹具的 **20 cm PCIe 线**不足以满足现有布局。
 - **测量结论仍有边界**：显卡 Quarch 与 NVIDIA 负载功率存在约 21–24 W 差异；SSD Q19/Q20 波动原因尚未完全厘清。成功采集和短时重复性不代表这些问题已解决。
@@ -128,7 +128,8 @@ tools/                安装、基准测试和分析工具
   benchmark/          SSD 冷缓存、连续批次和仅计时的 TPC-H 脚本
   analysis/           CSV 分析和发布结果离线校验
 tests/                自动测试与夹具 XML 样本
-docs/setup/           安装、接线、USB 排障和历史 QTL2843 规格
+docs/setup/           安装、Ethernet / USB 接线、排障及型号规格
+docs/troubleshooting/ 故障证据、恢复过程和待验证事项
 docs/usage/           实时查看、分段采集、TPC-H 操作说明
 docs/diagrams/        接线图 Mermaid 源文件
 experiments/          有说明、来源和校验和的正式实验归档
@@ -139,10 +140,41 @@ validation/           本机调试记录（Git 忽略）
 `.venv/`、厂商源码 `QuarchPy/`、运行包 `downloads/`、数据库和运行日志不随仓库发布。
 新实验先写入 `results/`，核对后再归档到 `experiments/`，保持代码与结果分开。
 
-## 原 QTL2843 交流方案
+## QTL2843 整机交流测量：Ethernet 与 USB
 
-QTL2843 的 `L1/L2/L3` 通道对应交流输出端，原实验以 `L2` 测整机能耗。
-其 PoE 供电和接线见 [历史接线说明](docs/setup/current-wiring.md)，
+QTL2843 的 `L1/L2/L3` 对应交流输出端，本机以 `L2` 测整机能耗。
+**2026-11-25 起，本机使用 Ethernet，USB 已拔掉**，接线如下：
+
+```text
+被测电脑 eno1 ── 交换机 ── Injector DATA IN
+Injector PoE & Data OUT ── QTL2843 LAN（数据＋仪器供电）
+插座 ── QTL2843 INPUT ── OUTPUT L2 ── 被测电脑交流电源
+插座 ── Injector 电源输入
+```
+
+电脑有线地址为 `192.168.1.10/24`，仪器为 `192.168.1.99/24`、DHCP 关闭，TCP 命令端口 `9760`。
+两种通信方式都可继续使用，以下服务命令选择一条运行：
+
+```bash
+cd /home/ubuntu/Quarch
+# Ethernet：当前使用，网络正常后不需要 USB
+.venv/bin/python -m quarch_capture serve --device TCP::192.168.1.99 --channel L2
+
+# USB：原方法保留，需要接回 USB 并具有设备访问权限
+.venv/bin/python -m quarch_capture serve --device USB::QTL2843-03-002 --channel L2
+```
+
+看到 `"ready": true` 后，另一个终端执行 `Quarch start --channel L2`、`Quarch stop` 或
+`Quarch watch --L2 --10ms`；`--channel` 不可省略，watch 可使用 `--L2` 简写。
+切换通信方式时正常退出原服务，再用新目标启动。
+本机已验证无 USB 的 1000 Hz、30 秒采集，获得 30,000 个连续采样点；
+仪器底层采样率为 8 kHz，与 QTL2312 的直流采样规格不同。
+
+- [Ethernet：静态地址、身份查询、1000 Hz 采集和重连](docs/setup/ethernet.md)
+- [当前 Ethernet 与保留的 USB 接线图](docs/setup/current-wiring.md)
+- [故障如何排查和恢复，哪些原因尚未确认](docs/troubleshooting/ethernet-recovery-20261125.md)
+- [USB 安装与权限配置（保留）](docs/setup/installation.md#qtl2843-原-ubuntu-usb-配置保留)、[USB 排障](docs/setup/usb-notes.md)
+
 型号精度与旧环境基线见 [QTL2843 精度资料](docs/setup/qtl2843-accuracy.md)。
 原 [连续批次能耗测量](docs/usage/tpch-energy.md#原有连续执行批次测量)和
 [仅测 DuckDB 耗时](docs/usage/tpch-timing.md)入口继续保留。

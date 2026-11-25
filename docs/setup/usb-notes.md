@@ -1,7 +1,12 @@
 # USB 使用注意事项与排查
 
 **当前 QTL2312 + M.2 夹具请使用 [SSD 接线、权限和恢复说明](qtl2312-m2.md)**，准备环境见[安装指南](installation.md)。
-本页 1–7 节保留 QTL2843 历史排障记录（2026-11-07、用户 `ubuntu`），其 PoE、L2、8 kHz 指标仅适用于[历史接线](current-wiring.md)。第 8 节为当前通用 USB 恢复流程。
+本页 1–7 节保留 QTL2843 的 USB 排障记录（2026-11-07、用户 `ubuntu`），其 PoE、L2、8 kHz 指标仅适用于[QTL2843 接线](current-wiring.md)。第 8 节为通用 USB 恢复流程。
+
+**USB 方法继续保留。** QTL2843 在 2026-11-25 已切换为 Ethernet、USB 已拔掉，网络使用见
+[网线通信指南](ethernet.md)及[恢复记录](../troubleshooting/ethernet-recovery-20261125.md)。
+需要切回 USB 时仍按本文配置；普通用户 USB 权限和 USB 枚举编号不参与纯 TCP 通信。
+原 Ubuntu 权限安装与身份查询见[安装指南](installation.md#qtl2843-原-ubuntu-usb-配置保留)。
 
 ## 1. USB 通信、仪器电源与被测电源是三件事
 

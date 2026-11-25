@@ -6,6 +6,11 @@
 
 本指南复现当前服务器已经验证的安装路径：**Python 虚拟环境 → 厂商 QuarchPy 源码 → 配套 Java → QIS 共享运行包 → USB 权限 → 身份查询**。不需要安装完整桌面环境，也不启动 QPS。
 
+USB 安装和使用步骤继续保留。QTL2843 在 `/home/ubuntu/Quarch` 的原配置另见
+[保留的 Ubuntu USB 配置](#qtl2843-原-ubuntu-usb-配置保留)。该仪器于 2026-11-25 恢复 Ethernet：
+仅用网口时完成第 1–4 步的软件安装后，按[网线指南](ethernet.md)配置地址、查询和采集；
+USB 权限只在使用 USB 时需要。更换机器请替换路径和序列号。
+
 ## 已验证版本
 
 | 组件 | 版本 / 来源 |
@@ -161,6 +166,36 @@ python tools/setup/check_connection.py --backend qis --serial QTL2312-01-578
 至此，安装、Java 执行权限、普通用户 USB 权限和 QIS 通信链路均有实际检查。检查工具本身不采集功率曲线。
 接下来按[命令控制采集指南](../usage/command-controlled-capture.md)启动本仓库的 `quarch_capture` 程序；
 默认输出间隔为 10ms，每次 `start` 都必须指定通道。
+
+### QTL2843 原 Ubuntu USB 配置（保留）
+
+QTL2843 原环境位于 `/home/ubuntu/Quarch`，用户为 `ubuntu`，设备序列号为 `QTL2843-03-002`。
+第 1–4 步的下载、虚拟环境和 QIS 安装方法相同，把示例项目路径替换为该目录。
+其 PoE、交流电源与 USB 接线见[USB 接线图](current-wiring.md#2-usb-接线与操作保留)。
+
+安装原有设备权限规则：
+
+```bash
+cd /home/ubuntu/Quarch
+sudo install -m 0644 config/udev/99-quarch-qtl2843.rules \
+  /etc/udev/rules.d/99-quarch-qtl2843.rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger --action=change --subsystem-match=usb \
+  --attr-match=idVendor=16d0 --attr-match=idProduct=0449 \
+  --attr-match=serial=QTL2843-03-002
+sudo udevadm settle --timeout=10
+```
+
+接回 USB 后，使用普通用户验证；直接 USB 查询前先正常退出占用该仪器的采集服务：
+
+```bash
+.venv/bin/python tools/setup/check_connection.py --backend usb --serial QTL2843-03-002
+.venv/bin/python tools/setup/check_connection.py --backend qis --serial QTL2843-03-002
+```
+
+预期身份含 `Part#: QTL2843-03` 和 `Serial#: QTL2843-03-002`，空闲录制状态为 `OFF`。
+随后可以使用原来的 `--device USB::QTL2843-03-002 --channel L2` 启动服务。
+网线已正常通信时可以不接 USB，改用 `--device TCP::192.168.1.99 --channel L2`。
 
 ## 8. 安装 Quarch 命令
 

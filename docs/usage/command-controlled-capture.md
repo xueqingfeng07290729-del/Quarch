@@ -16,6 +16,11 @@ QTL2312 的连接、1 ms 输出和 USB 恢复见[SSD 设备指南](../setup/qtl2
 **下文 L2 命令、JSON、CPU 开销和 8 kHz 规格均保留自 QTL2843 历史实验**，该实验测的是 OUTPUT L2 上的整机交流输入。
 用于 SSD 时替换设备和通道，测量范围随实际电源轨变化。
 
+**QTL2843 的 USB 方法完整保留在下文。** 在 2026-11-25 验证的 Ethernet 方案中，
+把下文 QTL2843 `serve` 的设备参数换成 `--device TCP::192.168.1.99`，其余开始／停止接口相同；
+地址、接线和验证见[网线通信指南](../setup/ethernet.md)。切换方式时正常退出原服务再启动新服务。
+这里的 IP 是本机 QTL2843 地址，不是上面 QTL2312 SSD 的设备地址。
+
 Python 代码统一放在 `quarch_capture/` 包中。日常命令使用 `python -m quarch_capture`，
 替代原来的 `python qtl2843_capture.py`；离线积分使用 `python -m quarch_capture.energy`，
 替代原来的 `python quarch_energy.py`。请先进入项目根目录，不需要额外安装本地包。
@@ -34,7 +39,7 @@ cd /home/ubuntu/Quarch
   --output-dir results/sessions
 ```
 
-看到 `"ready": true` 后即可在另一个终端发送命令。这个进程保持 QIS 和 USB 连接，
+看到 `"ready": true` 后即可在另一个终端发送命令。这个进程保持 QIS 和仪器连接（上例为 USB），
 初始状态为 `idle`，仪器 `rec?` 为 `OFF`，没有数据读取线程。
 只有 `start` 才会向仪器发送 `rec stream`；`stop` 发送 `rec stop`，读完缓冲数据后汇总能耗。
 停止后的等待时间不会加入下一次测量。这里的“不采集”指停止记录和读取数据，
@@ -223,7 +228,7 @@ SIGTERM 在自动测量窗口内转换为可清理的中断；SIGKILL 或断电�
 - `complete: false`、`ok: false` 或非零命令退出码代表结果不完整或操作失败。没有样本时能耗为 `null`，
   不能把它当作零能耗。丢失样本、缓冲溢出、USB 中断会报错；不能确认停止时会禁止新测量。
 - 正常停止后可用 `status` 确认 `state: idle`、`device_record_state: OFF`、`reader_active: false`。
-  保留 USB 和 PoE 连接，使用 `shutdown` 或 Ctrl+C 正常退出；强制终止或断电无法保证最后一段完整保存。
+  QTL2843 的 USB 模式保留 USB 和 PoE，Ethernet 模式保持网线和 PoE；使用 `shutdown` 或 Ctrl+C 正常退出，强制终止或断电无法保证最后一段完整保存。
 
 原来的 `--seconds` 固定时长模式仍然保留；逐条 SQL 的测试应使用本文的 `serve/start/stop` 模式。
 

@@ -3,6 +3,10 @@
 当前 QTL2312 + M.2 夹具的设备、权限和启动命令见 [QTL2312 配置](../setup/qtl2312-m2.md)。
 该设备使用 `Quarch watch --channel 3.3V --10ms`；下文 `L1/L2/L3` 示例用于 QTL2843。
 
+QTL2843 的 USB 示例继续保留。2026-11-25 验证的网线方案将下文 QTL2843 `serve` 的
+`--device` 换成 `TCP::192.168.1.99`，地址配置见[网线通信指南](../setup/ethernet.md)。
+watch 使用已有服务的通信方式，不会自行从 USB 切换到 TCP；QTL2312 仍使用其实际设备目标。
+
 ## 安装和启动
 
 先完成[安装](../setup/installation.md)，包括把 `bin/Quarch` 链接到 PATH。
