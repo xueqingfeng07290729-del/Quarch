@@ -88,6 +88,8 @@ CSV 开关只控制逐点文件，输出频率默认仍为 100 Hz。更多操作
 输出在 `results/dram/<UTC时间>/`，保留原始数据、R1/R5 独立 CSV、时间戳和所选通道能耗 JSON。
 不写 `--resample` 默认 10 ms，`--channel` 必填；电源轨名称未确认，`Tot` 只表示已接两路的功率合计。
 [完整操作与测试步骤](docs/usage/dram-shunts.md)包括 Ubuntu USB 权限、实时 watch、按任务 start/stop、离线复核和代码职责。
+另提供[空闲／内存读取／写入能耗对比](docs/usage/dram-shunts.md#内存读取写入能耗对比)，使用同一常驻缓冲区，分别汇总 R1、R5 和合计功率。
+已完成[三轮实测与原始数据归档](experiments/2026-11-27-dram-memory/README.md)：每段 15 秒、10 ms 间隔，合计平均功率为空闲 **0.904 W**、读取 **2.479 W**、写入 **2.973 W**；电源轨识别和完整 DRAM 供电覆盖仍待核对。
 已有 SSD、显卡和 QTL2843 的 USB / Ethernet 方法继续保留，切换夹具前先结束当前测量并关闭服务。
 
 ## 测量 TPC-H 每条查询的 SSD 能耗

@@ -1,0 +1,104 @@
+{
+  "status": "failed",
+  "started_at": "2026-11-27T10:13:53.779585+00:00",
+  "device": "USB::QTL2312-01-578",
+  "requested_seconds": 15.0,
+  "interval_s": 0.01,
+  "runs_per_phase": 3,
+  "buffer_mib": 1024,
+  "threads": 4,
+  "warmup_s": 2,
+  "pause_s": 5,
+  "shunt_mohm": [
+    5,
+    5
+  ],
+  "python": "3.12.3",
+  "numpy": "2.5.4",
+  "host": {
+    "system": "Linux",
+    "node": "hayamizu-dell-p5820",
+    "release": "6.8.0-147-generic",
+    "version": "#147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "memory_before": {
+    "available_bytes": 15572725760,
+    "pswpin": 0,
+    "pswpout": 0
+  },
+  "phases": [
+    {
+      "run": 1,
+      "phase": "idle",
+      "directory": "r01_idle",
+      "workers": [],
+      "memory_before": {
+        "available_bytes": 14357798912,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14159134720,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": 1,
+      "phase": "read",
+      "directory": "r01_read",
+      "workers": [
+        {
+          "passes": 662,
+          "logical_bytes": 177704271872,
+          "elapsed_s": 23.035732283000016,
+          "read_checksum": 0
+        },
+        {
+          "passes": 665,
+          "logical_bytes": 178509578240,
+          "elapsed_s": 23.053441165000095,
+          "read_checksum": 33554432
+        },
+        {
+          "passes": 662,
+          "logical_bytes": 177704271872,
+          "elapsed_s": 23.052863242000058,
+          "read_checksum": 0
+        },
+        {
+          "passes": 654,
+          "logical_bytes": 175556788224,
+          "elapsed_s": 23.044228874000055,
+          "read_checksum": 0
+        }
+      ],
+      "memory_before": {
+        "available_bytes": 14162292736,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14120345600,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    }
+  ],
+  "scope": "DIMM1 riser R1/R5 only; electrical rail names and complete DRAM coverage unverified",
+  "method": "Same prefaulted buffers remain resident in all phases; three-phase cyclic order rotates each run",
+  "read": "uint64 NumPy sum, no buffer writes during load",
+  "write": "uint64 NumPy fill, alternating 1/2; ordinary stores may also read cache lines",
+  "placement": "OS page placement; no physical DIMM pinning",
+  "throughput_scope": "Logical buffer bytes over full worker lifetime including warmup and capture setup/export, not DRAM bus traffic",
+  "qis_version": "v1.54",
+  "error": "RuntimeError: Capture reported an error: [True, 'Stopped', 'Device buffer overrun - QIS buffer empty']",
+  "finished_at": "2026-11-27T10:15:08.197867+00:00",
+  "memory_after": {
+    "available_bytes": 14475718656,
+    "pswpin": 0,
+    "pswpout": 0
+  }
+}

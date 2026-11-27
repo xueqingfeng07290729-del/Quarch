@@ -1,0 +1,54 @@
+{
+  "started_at": "2026-11-27T10:17:23.209702+00:00",
+  "status": "complete",
+  "device": "USB::QTL2312-01-578",
+  "channel_mapping": {
+    "CH1": {
+      "instrument_channel": "POWER_1",
+      "slot": "DIMM1",
+      "riser": 1,
+      "resistor": "R1",
+      "rail": null
+    },
+    "CH2": {
+      "instrument_channel": "POWER_2",
+      "slot": "DIMM1",
+      "riser": 1,
+      "resistor": "R5",
+      "rail": null
+    }
+  },
+  "rail_mapping_verified": false,
+  "unused_channels": [
+    "POWER_3",
+    "POWER_4"
+  ],
+  "requested_shunts_ohm": {
+    "POWER_1": 0.005,
+    "POWER_2": 0.005
+  },
+  "requested_duration_s": 15.0,
+  "requested_interval_s": 0.01,
+  "current_method": "current_A = shunt_voltage_V / shunt_resistance_ohm",
+  "sample_mean_note": "Resampled values are interval means, not full-rate raw ADC samples",
+  "power_note": "Use QIS mean power or rescale it by old_R/new_R; do not multiply mean voltage by mean current",
+  "instrument_identity": "Family:     Power Analysis Modules\r\nName:       Power Analysis Module\r\nPart#:      QTL2312-01\r\nProcessor:  QTL2102-01,5.124\r\nBootloader: QTL2102-01,5.124\r\nFPGA 1:     QTL2103,1.12\r\nSerial#:    QTL2098-02-583\r\nEnclosure#: QTL2312-01-578\r\nFixture:    QTL2628-03 EXT SHUNT FIXTURE",
+  "fixture_identity": "Name:        EXT SHUNT FIXTURE\r\nPart#:       QTL2628-03\r\nSerial#:     QTL2628-03-004\r\nFPGA 1:      QTL3418,1.1\r\nInternal#:   QTL2631-02-007",
+  "shunt_resistances_ohm": {
+    "POWER_1": 0.005,
+    "POWER_2": 0.005
+  },
+  "samples": 1500,
+  "interval_s": 0.01,
+  "duration_s": 15.0,
+  "first_timestamp_s": 0.0,
+  "last_timestamp_s": 14.989999999999998,
+  "raw_csv": "/home/ubuntu/Quarch/results/dram_memory/20261127_memory_rw_02/r01_write/raw.csv",
+  "derived_csv": "/home/ubuntu/Quarch/results/dram_memory/20261127_memory_rw_02/r01_write/dram.csv",
+  "diagnostic_csv": "/home/ubuntu/Quarch/results/dram_memory/20261127_memory_rw_02/r01_write/selected.all-channels.csv",
+  "active_shunt_channels": [
+    "POWER_1",
+    "POWER_2"
+  ],
+  "finished_at": "2026-11-27T10:17:44.308600+00:00"
+}

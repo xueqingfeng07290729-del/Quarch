@@ -1,0 +1,393 @@
+{
+  "status": "complete",
+  "started_at": "2026-11-27T10:16:23.470435+00:00",
+  "device": "USB::QTL2312-01-578",
+  "requested_seconds": 15.0,
+  "interval_s": 0.01,
+  "runs_per_phase": 3,
+  "buffer_mib": 1024,
+  "threads": 2,
+  "warmup_s": 2,
+  "pause_s": 5,
+  "worker_cpus": [
+    1,
+    2
+  ],
+  "control_cpus": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    9,
+    10,
+    11
+  ],
+  "shunt_mohm": [
+    5,
+    5
+  ],
+  "python": "3.12.3",
+  "numpy": "2.5.4",
+  "host": {
+    "system": "Linux",
+    "node": "hayamizu-dell-p5820",
+    "release": "6.8.0-147-generic",
+    "version": "#147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "memory_before": {
+    "available_bytes": 15583600640,
+    "pswpin": 0,
+    "pswpout": 0
+  },
+  "phases": [
+    {
+      "run": 1,
+      "phase": "idle",
+      "directory": "r01_idle",
+      "workers": [],
+      "memory_before": {
+        "available_bytes": 14332743680,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14099238912,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": 1,
+      "phase": "read",
+      "directory": "r01_read",
+      "workers": [
+        {
+          "passes": 532,
+          "logical_bytes": 285615325184,
+          "elapsed_s": 23.093458394999743,
+          "read_checksum": 0
+        },
+        {
+          "passes": 538,
+          "logical_bytes": 288836550656,
+          "elapsed_s": 23.107698791000075,
+          "read_checksum": 0
+        }
+      ],
+      "memory_before": {
+        "available_bytes": 14100430848,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14060941312,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": 1,
+      "phase": "write",
+      "directory": "r01_write",
+      "workers": [
+        {
+          "passes": 255,
+          "logical_bytes": 136902082560,
+          "elapsed_s": 23.137595035999766,
+          "read_checksum": 0
+        },
+        {
+          "passes": 257,
+          "logical_bytes": 137975824384,
+          "elapsed_s": 23.151080610999998,
+          "read_checksum": 0
+        }
+      ],
+      "memory_before": {
+        "available_bytes": 14061862912,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14052593664,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": 2,
+      "phase": "read",
+      "directory": "r02_read",
+      "workers": [
+        {
+          "passes": 538,
+          "logical_bytes": 288836550656,
+          "elapsed_s": 23.061620385000424,
+          "read_checksum": 0
+        },
+        {
+          "passes": 540,
+          "logical_bytes": 289910292480,
+          "elapsed_s": 23.059796168000503,
+          "read_checksum": 0
+        }
+      ],
+      "memory_before": {
+        "available_bytes": 14057070592,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14062272512,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": 2,
+      "phase": "write",
+      "directory": "r02_write",
+      "workers": [
+        {
+          "passes": 267,
+          "logical_bytes": 143344533504,
+          "elapsed_s": 23.130891247000363,
+          "read_checksum": 0
+        },
+        {
+          "passes": 266,
+          "logical_bytes": 142807662592,
+          "elapsed_s": 23.115267842999856,
+          "read_checksum": 0
+        }
+      ],
+      "memory_before": {
+        "available_bytes": 14062321664,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14053376000,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": 2,
+      "phase": "idle",
+      "directory": "r02_idle",
+      "workers": [],
+      "memory_before": {
+        "available_bytes": 14052655104,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14054428672,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": 3,
+      "phase": "write",
+      "directory": "r03_write",
+      "workers": [
+        {
+          "passes": 259,
+          "logical_bytes": 139049566208,
+          "elapsed_s": 23.134913462999975,
+          "read_checksum": 0
+        },
+        {
+          "passes": 259,
+          "logical_bytes": 139049566208,
+          "elapsed_s": 23.12965684000028,
+          "read_checksum": 0
+        }
+      ],
+      "memory_before": {
+        "available_bytes": 14058377216,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14057889792,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": 3,
+      "phase": "idle",
+      "directory": "r03_idle",
+      "workers": [],
+      "memory_before": {
+        "available_bytes": 14057955328,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14058553344,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    },
+    {
+      "run": 3,
+      "phase": "read",
+      "directory": "r03_read",
+      "workers": [
+        {
+          "passes": 537,
+          "logical_bytes": 288299679744,
+          "elapsed_s": 23.07969372200023,
+          "read_checksum": 67108864
+        },
+        {
+          "passes": 543,
+          "logical_bytes": 291520905216,
+          "elapsed_s": 23.08662732599987,
+          "read_checksum": 67108864
+        }
+      ],
+      "memory_before": {
+        "available_bytes": 14056083456,
+        "pswpin": 0,
+        "pswpout": 0
+      },
+      "memory_after": {
+        "available_bytes": 14056472576,
+        "pswpin": 0,
+        "pswpout": 0
+      }
+    }
+  ],
+  "scope": "DIMM1 riser R1/R5 only; electrical rail names and complete DRAM coverage unverified",
+  "method": "Same prefaulted buffers remain resident in all phases; three-phase cyclic order rotates each run",
+  "read": "uint64 NumPy sum, no buffer writes during load",
+  "write": "uint64 NumPy fill, alternating 1/2; ordinary stores may also read cache lines",
+  "placement": "OS page placement; no physical DIMM pinning",
+  "throughput_scope": "Logical buffer bytes over full worker lifetime including warmup and capture setup/export, not DRAM bus traffic",
+  "qis_version": "v1.54",
+  "qis_started_by_benchmark": true,
+  "summary": [
+    {
+      "phase": "idle",
+      "channel": "POWER_1",
+      "runs": 3,
+      "mean_power_W": 0.069515076,
+      "stdev_power_W": 0.002386738206954234,
+      "mean_duration_s": 15.0,
+      "mean_energy_J": 1.0427261399999999,
+      "delta_vs_paired_idle_W": 0.0,
+      "delta_vs_paired_idle_pct": 0.0,
+      "mean_incremental_energy_J": 0.0
+    },
+    {
+      "phase": "idle",
+      "channel": "POWER_2",
+      "runs": 3,
+      "mean_power_W": 0.8342397962222222,
+      "stdev_power_W": 0.03986559417489673,
+      "mean_duration_s": 15.0,
+      "mean_energy_J": 12.513596943333333,
+      "delta_vs_paired_idle_W": 0.0,
+      "delta_vs_paired_idle_pct": 0.0,
+      "mean_incremental_energy_J": 0.0
+    },
+    {
+      "phase": "idle",
+      "channel": "Tot",
+      "runs": 3,
+      "mean_power_W": 0.9037548719999999,
+      "stdev_power_W": 0.04224765221789024,
+      "mean_duration_s": 15.0,
+      "mean_energy_J": 13.556323079999999,
+      "delta_vs_paired_idle_W": 0.0,
+      "delta_vs_paired_idle_pct": 0.0,
+      "mean_incremental_energy_J": 0.0
+    },
+    {
+      "phase": "read",
+      "channel": "POWER_1",
+      "runs": 3,
+      "mean_power_W": 0.10247456799999999,
+      "stdev_power_W": 0.0022457652103782706,
+      "mean_duration_s": 15.0,
+      "mean_energy_J": 1.53711852,
+      "delta_vs_paired_idle_W": 0.032959492,
+      "delta_vs_paired_idle_pct": 47.413444531082725,
+      "mean_incremental_energy_J": 0.4943923800000001
+    },
+    {
+      "phase": "read",
+      "channel": "POWER_2",
+      "runs": 3,
+      "mean_power_W": 2.3760785035555556,
+      "stdev_power_W": 0.011276682713704099,
+      "mean_duration_s": 15.0,
+      "mean_energy_J": 35.64117755333333,
+      "delta_vs_paired_idle_W": 1.5418387073333333,
+      "delta_vs_paired_idle_pct": 184.81960634285338,
+      "mean_incremental_energy_J": 23.12758061
+    },
+    {
+      "phase": "read",
+      "channel": "Tot",
+      "runs": 3,
+      "mean_power_W": 2.478553065111111,
+      "stdev_power_W": 0.013502345380079533,
+      "mean_duration_s": 15.0,
+      "mean_energy_J": 37.17829597666667,
+      "delta_vs_paired_idle_W": 1.5747981931111112,
+      "delta_vs_paired_idle_pct": 174.25058961243545,
+      "mean_incremental_energy_J": 23.621972896666666
+    },
+    {
+      "phase": "write",
+      "channel": "POWER_1",
+      "runs": 3,
+      "mean_power_W": 0.1667733028888889,
+      "stdev_power_W": 0.0035001767269306396,
+      "mean_duration_s": 15.0,
+      "mean_energy_J": 2.501599543333333,
+      "delta_vs_paired_idle_W": 0.09725822688888888,
+      "delta_vs_paired_idle_pct": 139.90954550476056,
+      "mean_incremental_energy_J": 1.4588734033333333
+    },
+    {
+      "phase": "write",
+      "channel": "POWER_2",
+      "runs": 3,
+      "mean_power_W": 2.806026689111111,
+      "stdev_power_W": 0.040392466030838556,
+      "mean_duration_s": 15.0,
+      "mean_energy_J": 42.09040033666667,
+      "delta_vs_paired_idle_W": 1.9717868928888889,
+      "delta_vs_paired_idle_pct": 236.3573281708621,
+      "mean_incremental_energy_J": 29.576803393333332
+    },
+    {
+      "phase": "write",
+      "channel": "Tot",
+      "runs": 3,
+      "mean_power_W": 2.9727999944444443,
+      "stdev_power_W": 0.043788573606745505,
+      "mean_duration_s": 15.0,
+      "mean_energy_J": 44.591999916666666,
+      "delta_vs_paired_idle_W": 2.069045122444445,
+      "delta_vs_paired_idle_pct": 228.93875170660715,
+      "mean_incremental_energy_J": 31.035676836666667
+    }
+  ],
+  "finished_at": "2026-11-27T10:20:39.175948+00:00",
+  "memory_after": {
+    "available_bytes": 14464536576,
+    "pswpin": 0,
+    "pswpout": 0
+  }
+}

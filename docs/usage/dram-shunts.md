@@ -20,6 +20,7 @@
 | [quarch_capture/measurement.py](../../quarch_capture/measurement.py)、[commands.py](../../quarch_capture/commands.py) | 分段测量状态与命令接口 |
 | [quarch_capture/energy.py](../../quarch_capture/energy.py) | 按各时间窗平均功率积分，输出 J 和 Wh |
 | [tests/test_external_shunts.py](../../tests/test_external_shunts.py) | 单位、依赖、双路合计、原始数据和重算回归测试 |
+| [tools/benchmark/dram_memory_energy.py](../../tools/benchmark/dram_memory_energy.py) | 相同常驻缓冲区上的空闲／读取／写入对比，逐路统计功率和相对空闲增量 |
 
 这些是本仓库的测量代码；没有修改官方 QuarchPy / QIS。厂商依赖按安装指南另行下载，测量输出保存在 Git 忽略的 `results/dram/`。
 
@@ -201,6 +202,46 @@ QIS 电流／功率列独立保留，不覆盖由原始压降计算的电流。
 可查询 `*IDN?`、`FIX:IDN?`、`REC?`、`FIX:POWER_1:SHUNT?`、`FIX:POWER_2:SHUNT?`。
 本机已验证设置命令为 `FIX:POWER_1:SHUNT 5 MilliOhm` 和 `FIX:POWER_2:SHUNT 5 MilliOhm`，
 必须在录制 OFF 时设置并读回；日常用双路脚本自动执行即可。读取／设置的是仪器换算参数，不是对实物电阻进行测阻。
+
+## 内存读取／写入能耗对比
+
+新增[内存负载脚本](../../tools/benchmark/dram_memory_energy.py)，复用双路采集程序，不修改仪器供电。
+先正常结束自己的测量并关闭空闲的常驻服务，再运行：
+
+```bash
+cd /home/ubuntu/Quarch
+.venv/bin/python tools/benchmark/dram_memory_energy.py \
+  --device USB::QTL2312-01-578 --channel Tot \
+  --seconds 15 --runs 3 --buffer-mib 1024 --threads 2 --resample 10ms
+```
+
+默认分配并预先写入 **总计 1 GiB** 的匿名内存，分成 2 个 512 MiB 缓冲区，全部阶段保持驻留。
+读取阶段用 NumPy 对 `uint64` 缓冲区反复求和；写入阶段反复填充交替的 1／2。
+两者在整个采样窗口内运行，包含窗口外的 2 秒预热及采集配置／导出时间；每段设备采集 15 秒、1500 点，段间暂停 5 秒。
+三轮顺序依次为 `idle → read → write`、`read → write → idle`、`write → idle → read`，减少固定顺序造成的偏差。
+脚本检查缓冲区不超过可用内存的四分之一，并在检测到主机换页时拒绝将对比标为完成。
+负载线程各使用一个物理核心；主控和由本次启动的 QIS 使用其他核心，避免与负载共用物理核心。
+CPU 分配写入 `run.json`，退出后恢复主控原有的 CPU affinity；不修改系统 CPU 调度配置。
+若 QIS 已由其他程序启动，其 CPU 分配由原程序决定。缓冲区溢出会使该轮失败，保留原始诊断数据，不补齐缺失点或冒充完整测量。
+
+默认输出到 `results/dram_memory/<UTC时间>/`：
+
+- 每个 `rXX_idle/read/write/` 保存双路采集的全部原始与派生 CSV、阻值和能耗 JSON；不与之前的诊断结果混用。
+- `comparison.csv`：三种阶段各三次，分别记录 POWER_1/R1、POWER_2/R5 和 Tot，共 27 行。
+- `summary.csv`：各阶段、各通道的三次平均功率、轮间标准差、平均能耗，以及相对同轮空闲的功率／能耗增量。
+- `run.json`：软件版本、工作集、轮次顺序、工作线程计数、换页检查和完成状态。线程逻辑字节数覆盖完整负载生存期，不能直接当作采样窗口内的 DRAM 总线流量。
+
+增量能耗按 `该段能耗 − 同轮空闲平均功率 × 该段采样时长` 计算；比较不同长度的任务时应同时看时长、功率和能耗。
+测试结束后，按本页[实时功率](#实时功率)命令重新启动常驻服务，即可继续手动测量。
+
+该测试是带 CPU 处理的顺序内存负载，不是只测某条内存指令的实验；普通写入还可能产生缓存行读取和回写流量。
+Linux 分配页面，不能保证工作集只位于 DIMM1；若有其他内存条，当前仪器仍只看到已接 riser 的路径。
+QIS、采集 CSV、系统后台活动也会使用内存。电源轨识别和供电覆盖尚未完成，因此结果用 R1、R5 命名，
+不把两路合计直接当作全部 DRAM 能耗，也不从这些读数推定 R5 是 VPP。
+
+2026-11-27 的[三轮实测结果与原始数据](../../experiments/2026-11-27-dram-memory/README.md)已归档：
+两路合计平均功率由空闲 0.904 W 增至读取 2.479 W、写入 2.973 W，主要变化在 CH2/R5。
+首次四线程写入发生缓冲区溢出，失败记录单独保留；改用两线程并分配独立物理核心后的九段均完整通过。
 
 ## 原 `Tot` 报错
 
