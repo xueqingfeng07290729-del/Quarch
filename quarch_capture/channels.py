@@ -8,6 +8,12 @@ AC_CHANNELS = ("L1", "L2", "L3")
 CHANNEL_REF = re.compile(r"chan\(\s*([^,\s]+)\s*,\s*([^\s)]+)\s*\)", re.IGNORECASE)
 
 
+def canonical_channel_ref(reference):
+    """QIS exposes fixture group A as current in stream headers and references."""
+    name, group = reference
+    return name, "current" if group == "A" else group
+
+
 def channel_name(value):
     """Keep fixture spelling, with legacy case-insensitive AC channel names."""
     if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_+][A-Za-z0-9_.+-]{0,63}", value):
@@ -43,12 +49,12 @@ def available_power_channels(definitions):
     return tuple(channels)
 
 
-def selected_synthetic_functions(definitions, channel, include_details):
+def selected_synthetic_functions(definitions, channel, include_details, shunts=None):
     """Select power plus its prerequisites; never multiply resampled V and I."""
     channel = channel_name(channel)
     functions = {}
     for definition in definitions:
-        refs = CHANNEL_REF.findall(definition.function)
+        refs = [canonical_channel_ref(ref) for ref in CHANNEL_REF.findall(definition.function)]
         if refs:
             if refs[0] in functions:
                 raise ValueError(f"Duplicate synthetic channel: {refs[0]}")
@@ -66,6 +72,9 @@ def selected_synthetic_functions(definitions, channel, include_details):
         visiting.add(key)
         function, dependencies = functions[key]
         for dependency in dependencies:
+            if shunts and dependency[1] == "current" and dependency[0] in shunts:
+                if shunts[dependency[0]] <= 0 or dependency not in functions:
+                    raise ValueError(f"External shunt {dependency[0]} is unset; configure its actual resistance before recording")
             if dependency in functions:
                 add(dependency)
         visiting.remove(key)

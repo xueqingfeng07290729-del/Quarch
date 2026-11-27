@@ -1,0 +1,2 @@
+# Dell DRAM setup: allow ubuntu to access this QTL2312, including after USB reconnection.
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="16d0", ATTR{idProduct}=="0449", ATTR{serial}=="QTL2312-01-578", OWNER="ubuntu", MODE="0660"

@@ -1,0 +1,17 @@
+flowchart LR
+    subgraph PC["Dell Precision 5820 / Linux"]
+        MB["主板 DIMM1 插槽"]
+        RISER["单块 DDR4 CSR riser<br/>R1 = 5 mΩ / R5 = 5 mΩ"]
+        DIMM["被测 DDR4 DIMM"]
+        SOFTWARE["Python / QuarchPy / headless QIS"]
+        MB <-->|"DDR4 信号与主板供电"| RISER
+        RISER <-->|"DDR4 信号与经分流电阻的供电"| DIMM
+    end
+    FIXTURE["QTL2628 External-Shunt<br/>CH1 ← R1，CH2 ← R5<br/>CH3 / CH4 未连接"]
+    PAM["QTL2312 PAM<br/>USB::QTL2312-01-578"]
+    PSU["匹配的 12V DC 适配器"]
+
+    RISER -.->|"R1 红黑差分对 → CH1+ / CH1−<br/>R5 红黑差分对 → CH2+ / CH2−<br/>指定 GND → GND；只取样"| FIXTURE
+    FIXTURE <-->|"Quarch 专用 USB-C 夹具线"| PAM
+    PAM <-->|"USB-B ↔ 电脑 USB 数据线"| SOFTWARE
+    PSU -->|"仪器独立供电"| PAM

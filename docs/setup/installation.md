@@ -4,6 +4,10 @@
 
 **QTL2983 显卡夹具复用相同的 QuarchPy/QIS 环境与 QTL2312 USB 权限规则**，其 PCIe 和 AUX 供电连接、通道名称见[显卡接线指南](qtl2312-gpu.md)。
 
+**QTL2628 DRAM 外部分流夹具也复用该环境**。Dell 的项目目录为 `/home/ubuntu/Quarch`、用户为 `ubuntu`，
+第 1–4 步替换项目路径后适用；该机器使用单独的 [ubuntu USB 权限规则和验证步骤](../usage/dram-shunts.md#安装和-usb-权限)，
+不要直接安装下面 `xueqing` 的权限规则。实际 R1/R5 接线见 [DRAM 硬件指南](qtl2312-dram.md)。
+
 本指南复现当前服务器已经验证的安装路径：**Python 虚拟环境 → 厂商 QuarchPy 源码 → 配套 Java → QIS 共享运行包 → USB 权限 → 身份查询**。不需要安装完整桌面环境，也不启动 QPS。
 
 USB 安装和使用步骤继续保留。QTL2843 在 `/home/ubuntu/Quarch` 的原配置另见

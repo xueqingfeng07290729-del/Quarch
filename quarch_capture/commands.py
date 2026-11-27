@@ -94,7 +94,7 @@ def serve(args):
                 if outcome not in [errno.ECONNREFUSED, errno.ENOENT]:
                     raise RuntimeError("Could not confirm that the existing socket is stale")
             path.unlink()
-        backend = QisBackend(args.device, args.resample)
+        backend = QisBackend(args.device, args.resample, active_channels=args.active_channels)
         recorder = None
         socket_inode = None
         try:
@@ -138,6 +138,8 @@ def main(argv=None):
     service = commands.add_parser("serve", help="Keep QIS connected, with recording OFF until start")
     service.add_argument("--device", required=True)
     service.add_argument("--channel", type=channel_name, required=True, help="Power channel from --inspect")
+    service.add_argument("--active-channels", nargs="+", type=channel_name,
+                         help="External-shunt inputs included in Tot, e.g. POWER_1 POWER_2")
     service.add_argument("--resample", default="10ms", help="QIS output interval (default: 10ms / 100 Hz)")
     service.add_argument("--csv", choices=["on", "off"], default="off", help="Default CSV switch (default: off)")
     service.add_argument("--output-dir", type=Path, default=Path("results/sessions"))

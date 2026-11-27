@@ -1,0 +1,18 @@
+flowchart LR
+    subgraph RISER["DIMM1：同一块 riser 上的两条独立测量路径；电源轨名称待核对"]
+        U1["R1 上游<br/>主板 / 金手指侧"] --> R1["R1 = 5 mΩ"] --> D1["R1 下游<br/>DIMM 插座侧"]
+        U2["R5 上游<br/>主板 / 金手指侧"] --> R5["R5 = 5 mΩ"] --> D2["R5 下游<br/>DIMM 插座侧"]
+        GND["riser 指定 GND 点"]
+    end
+    subgraph FIXTURE["QTL2628：高阻测量输入"]
+        P1["CH1+ / S+"]
+        N1["CH1− / S−"]
+        P2["CH2+ / S+"]
+        N2["CH2− / S−"]
+        G["GND"]
+    end
+    U1 -.->|"红色 sense wire"| P1
+    D1 -.->|"黑色 sense wire"| N1
+    U2 -.->|"红色 sense wire"| P2
+    D2 -.->|"黑色 sense wire"| N2
+    GND --- G

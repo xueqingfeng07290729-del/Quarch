@@ -247,6 +247,9 @@ class Recorder:
                 result.update(device=self.backend.target, instrument_identity=self.backend.identity,
                               fixture_identity=self.backend.fixture_identity,
                               analog_base_rates_Hz=self.backend.analog_groups)
+            if getattr(self.backend, "shunt_resistances_ohm", None):
+                result.update(active_shunt_channels=list(self.backend.shunt_resistances_ohm),
+                              shunt_resistances_ohm=self.backend.shunt_resistances_ohm.copy())
             if self.session:
                 result["active_session"] = {
                     "session_id": self.session["session_id"], "label": self.session["label"],

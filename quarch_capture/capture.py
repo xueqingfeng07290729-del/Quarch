@@ -20,7 +20,8 @@ import sys
 
 from .common import device_lock, interval_seconds, termination_guard, write_json_atomic
 from .channels import (available_power_channels, channel_name, fixture_analog_groups,
-                       instrument_model, power_column, selected_columns)
+                       instrument_model, power_column, selected_columns, selected_synthetic_functions)
+from .shunts import synthetic_definitions
 
 
 def export_channel_csv(source, target, channel):
@@ -54,6 +55,8 @@ def main():
     parser.add_argument("--device", help="Exact USB::... or TCP::... target printed by discovery")
     parser.add_argument("--channel", type=channel_name,
                         help="Power channel to measure; use --inspect to list available channels")
+    parser.add_argument("--active-channels", nargs="+", type=channel_name,
+                        help="External-shunt inputs to include; Tot sums only these inputs")
     parser.add_argument("--inspect", action="store_true", help="Read instrument/fixture identity and channels without recording")
     parser.add_argument("--ip", help="Known instrument IPv4 address for targeted discovery")
     parser.add_argument("--seconds", type=float, default=10, help="Capture duration (default: 10 seconds)")
@@ -69,10 +72,11 @@ def main():
     interval_seconds(args.resample)
 
     with device_lock(args.device) if args.device else nullcontext():
-        return _capture(args, parser)
+        return capture_to_csv(args, parser)
 
 
-def _capture(args, parser):
+def capture_to_csv(args, parser, prepare=None):
+    """Capture through QIS; optionally configure an idle, identified fixture first."""
     output = (args.output or Path(datetime.now().strftime(f"quarch_{args.channel}_%Y%m%d_%H%M%S.csv"))).resolve()
     all_channels = output.with_name(output.stem + ".all-channels.csv")
     energy_file = output.with_suffix(".energy.json")
@@ -118,14 +122,19 @@ def _capture(args, parser):
         if args.inspect:
             power = quarchPPM(device, skipDefaultSyntheticChannels=True)
             power.fixture_definition = device.send_command("fix:chan:xml?")
+            definitions, shunts = synthetic_definitions(power, getattr(args, "active_channels", None))
             print(json.dumps({"device": args.device, "model": model,
                               "fixture_identity": device.send_command("fix:identity?").strip(),
-                              "available_channels": available_power_channels(power.parse_synthetic_channels_from_instrument()),
+                              "available_channels": available_power_channels(definitions),
+                              "shunt_resistances_ohm": shunts,
+                              "active_shunt_channels": list(shunts),
                               "analog_base_rates_Hz": fixture_analog_groups(power.fixture_definition) if model == "QTL2312" else {},
                               "device_record_state": device.send_command("rec?").strip()}, ensure_ascii=False, indent=2))
             return 0
         if device.send_command("rec?").strip().upper() != "OFF":
             raise RuntimeError("Instrument is already recording; its configuration was not changed")
+        if prepare is not None:
+            prepare(device)
 
         def configure(command):
             reply = device.send_command(command)
@@ -134,10 +143,11 @@ def _capture(args, parser):
 
         power = quarchPPM(device, skipDefaultSyntheticChannels=True)
         power.fixture_definition = device.send_command("fix:chan:xml?")
-        definitions = power.parse_synthetic_channels_from_instrument()
+        definitions, shunts = synthetic_definitions(power, getattr(args, "active_channels", None))
         available = available_power_channels(definitions)
         if args.channel not in available:
             raise ValueError(f"Channel {args.channel} is unavailable; choose from {', '.join(available)}")
+        selected_synthetic_functions(definitions, args.channel, False, shunts)
         groups = fixture_analog_groups(power.fixture_definition) if model == "QTL2312" else {}
         minimum = max(1 / rate for rate in groups.values()) if groups else .000125
         if interval_seconds(args.resample) < minimum:
@@ -190,6 +200,9 @@ def _capture(args, parser):
         from .energy import energy_from_csv
         energy = energy_from_csv(output, channel=args.channel, expected_duration_s=args.seconds)
         energy["all_channels_csv"] = str(all_channels)
+        if shunts:
+            energy["shunt_resistances_ohm"] = shunts
+            energy["active_shunt_channels"] = list(shunts)
         energy.update(device=args.device, instrument_identity=identity, fixture_identity=fixture_identity,
                       analog_base_rates_Hz=groups, hardware_averaging_samples=1)
         write_json_atomic(energy_file, energy)

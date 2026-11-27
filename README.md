@@ -1,4 +1,4 @@
-# Quarch：SSD 与显卡功耗、能耗测量
+# Quarch：SSD、显卡、DRAM 与整机能耗测量
 
 通过 **QTL2312 + PAM 夹具**测量设备电源轨，用 QuarchPy / headless QIS 采集并积分能耗。
 SSD 使用 **QTL2980-01 M.2 夹具**，支持逐条测量 DuckDB TPC-H；显卡使用 **QTL2983-02 PCIe 夹具与 AUX 子板**，覆盖插槽和外接供电。保留此前 QTL2843 整机交流测量功能。
@@ -9,6 +9,11 @@ SSD 方案已于 **2026-11-09（UTC）**实测。夹具返回的 `QTL2621-04-006
 默认输出 **10 ms / 100 Hz**，已验证 **1 ms / 1,000 Hz**；模拟通道硬件基础采样率为 **250 kHz**。
 SSD 的 `--channel 3.3V` 选择主供电轨，其 `Tot` 为 `3.3V + VIO_1V8`。
 显卡的 `Tot` 为插槽三路与外接 `+12Vaux` 的合计。各夹具的 `Tot` 定义不同，读数均包含所测电源轨在采集窗口内的基础功耗。
+
+DIMM1 的单块 DDR4 riser 还可使用 **QTL2312 + QTL2628 External-Shunt** 记录 CH1/R1、CH2/R5 两路压降和电流，
+保留 nominal 阻值及原始 CSV，便于按实际阻值重新计算；CH3/CH4 未连接，见[DRAM 接线与电路原理](docs/setup/qtl2312-dram.md)
+和[双路采集、能耗及测试指南](docs/usage/dram-shunts.md)。
+该方案按用户提供的 R1/R5 标签保存，不推定 R5 是 VPP，也不将其改写为 R6。
 
 ## 当前不足与未解决问题
 
@@ -69,6 +74,22 @@ CSV 开关只控制逐点文件，输出频率默认仍为 100 Hz。更多操作
 `Tot` 查看所测供电轨合计；改为 `--channel +12Vaux` 可单独查看 8-pin。
 当前矩阵负载测试中 Quarch 与 NVIDIA 自报功率存在差异，见[测量边界与待核查项](docs/setup/qtl2312-gpu.md#测量边界与待核查项)。
 
+## DRAM 测量入口：DIMM1 / R1 + R5
+
+按 [DRAM 接线图与电阻说明](docs/setup/qtl2312-dram.md)连接单块 riser；仅 CH1/R1、CH2/R5 有效，各为 5 mΩ。
+在没有常驻采集服务占用仪器时，用下面命令采集两路压降、电流和功率，并汇总两路合计能耗：
+
+```bash
+.venv/bin/python -m quarch_capture.dram \
+  --device USB::QTL2312-01-578 --channel Tot \
+  --seconds 30 --resample 1ms --shunt-mohm 5 5
+```
+
+输出在 `results/dram/<UTC时间>/`，保留原始数据、R1/R5 独立 CSV、时间戳和所选通道能耗 JSON。
+不写 `--resample` 默认 10 ms，`--channel` 必填；电源轨名称未确认，`Tot` 只表示已接两路的功率合计。
+[完整操作与测试步骤](docs/usage/dram-shunts.md)包括 Ubuntu USB 权限、实时 watch、按任务 start/stop、离线复核和代码职责。
+已有 SSD、显卡和 QTL2843 的 USB / Ethernet 方法继续保留，切换夹具前先结束当前测量并关闭服务。
+
 ## 测量 TPC-H 每条查询的 SSD 能耗
 
 已有空闲采集服务时，在另一个终端运行：
@@ -115,7 +136,7 @@ PATH="$HOME/experiment_dbs/duckdb/duckdb-v1.5.5/build/release:$PATH" \
   .venv/bin/python -m unittest discover -s tests -v
 ```
 
-本机包含真实 DuckDB CLI 的 **109 项测试全部通过，无跳过**。
+本机包含真实 DuckDB CLI 的 **119 项测试全部通过，无跳过**，包括 DRAM 外部分流转换和有效双路合计。
 
 ## 目录结构
 

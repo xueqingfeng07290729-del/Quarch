@@ -7,6 +7,7 @@ import threading
 import time
 
 from .common import interval_seconds, utc_now
+from .shunts import synthetic_definitions
 from .channels import (available_power_channels, fixture_analog_groups, instrument_model,
                        selected_synthetic_functions)
 
@@ -78,8 +79,9 @@ def read_stream_block(reader, device):
 class QisBackend:
     """Only begin() issues rec stream; end() issues rec stop and drains QIS."""
 
-    def __init__(self, device_target, resample):
+    def __init__(self, device_target, resample, active_channels=None):
         self.target, self.resample = device_target, resample
+        self.active_channels = tuple(active_channels) if active_channels is not None else None
         self.qis = self.device = self.reader = self.thread = None
         self.owns_qis = False
         self.started_by_us = False
@@ -89,6 +91,7 @@ class QisBackend:
         self.active_profile = self.configured_connection = None
         self.model = None
         self.analog_groups = {}
+        self.shunt_resistances_ohm = {}
         self.minimum_interval_s = .000125
         self.attached_connection = None
         self.connection_lost = False
@@ -124,7 +127,7 @@ class QisBackend:
         from quarchpy.device import quarchPPM
         self.power = quarchPPM(self.device, skipDefaultSyntheticChannels=True)
         self.power.fixture_definition = self.device.send_command("fix:chan:xml?")
-        self.synthetic_definitions = self.power.parse_synthetic_channels_from_instrument()
+        self.synthetic_definitions, self.shunt_resistances_ohm = synthetic_definitions(self.power, self.active_channels)
         self.available_channels = available_power_channels(self.synthetic_definitions)
         self.fixture_identity = self.device.send_command("fix:identity?").strip()
         self.analog_groups = {}
@@ -286,7 +289,8 @@ class QisBackend:
 
     def configure_channels(self, channel, include_details):
         profile = (channel, include_details)
-        functions = selected_synthetic_functions(self.synthetic_definitions, channel, include_details)
+        functions = selected_synthetic_functions(self.synthetic_definitions, channel, include_details,
+                                                self.shunt_resistances_ohm)
         rebuilt = profile != self.active_profile
         if rebuilt:
             self.active_profile = None
@@ -335,6 +339,9 @@ class QisBackend:
             started.update(device=self.target, instrument_identity=self.identity,
                            fixture_identity=self.fixture_identity, analog_base_rates_Hz=self.analog_groups,
                            hardware_averaging_samples=1)
+        if self.shunt_resistances_ohm:
+            started["shunt_resistances_ohm"] = self.shunt_resistances_ohm.copy()
+            started["active_shunt_channels"] = list(self.shunt_resistances_ohm)
         reader = self.reader
 
         def consume():
